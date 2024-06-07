@@ -1,0 +1,6 @@
+@CPositiveAPI_HostAddress = http://localhost:5195
+
+GET {{CPositiveAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
