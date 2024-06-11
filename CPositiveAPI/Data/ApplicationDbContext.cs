@@ -18,5 +18,10 @@ namespace CPositiveAPI.Data
         public DbSet<CountryMaster> CountryMaster { get; set; }
         public DbSet<StateMaster> StateMaster { get; set; }
         public DbSet<DistrictMaster> DistrictMaster { get; set; }
+        public DbSet<CancerInfo> CancerInfo { get; set; }
+        public DbSet<CancerNameMaster>CancerNameMaster { get; set; }
+        public DbSet<CancerTypeMaster> CancerTypesMaster { get; set;}
+        public DbSet<GradeMaster> GradeMaster {  get; set; }
+        public DbSet<StageMaster> StageMaster { get; set; }
     }
 }
