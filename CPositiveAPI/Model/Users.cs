@@ -11,5 +11,6 @@ namespace CPositiveAPI.Model
         public string ConfirmPassword {  get; set; }
         public string EmailId { get; set;}
         public string Mobileno {  get; set; }
+       
     }
 }

@@ -13,6 +13,7 @@ namespace CPositiveAPI.Data
 
         public DbSet<UserCategoryMaster> UserCategoryMaster { get; set; }
         public DbSet<Users> Users {  get; set; }
+        public DbSet<UserCategoryLink> UserCategoryLinking {  get; set; }
         //public DbSet<PersonalDetls> PersonalDetails {  get; set; }
         //public DbSet<CountryMaster> CountryMaster { get; set; }
         //public DbSet<StateMaster> StateMaster { get; set; }

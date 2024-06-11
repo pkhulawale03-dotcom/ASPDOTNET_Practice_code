@@ -7,5 +7,6 @@ namespace CPositiveAPI.Model
         [Key]
         public int UserCategoryId { get; set; }
         public string CategoryName { get; set;}
+        public Users Users { get; set; }
     }
 }
