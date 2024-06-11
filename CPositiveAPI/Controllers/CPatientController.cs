@@ -13,8 +13,12 @@ namespace CPositiveAPI.Controllers
     public class CPatientController : ControllerBase
     {
         public readonly ApplicationDbContext Context;
-       
-
+        //private readonly UserManager<ApplicationUser> _userManager; // Add UserManager
+        //public CPatientController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        //{
+        //    _context = context;
+        //    _userManager = userManager;
+        //}
         public CPatientController(ApplicationDbContext dbContext)
         {
             Context=dbContext;            
@@ -101,6 +105,7 @@ namespace CPositiveAPI.Controllers
                     ConfirmPassword = newUser.ConfirmPassword,
                     EmailId = newUser.EmailId,
                     Mobileno = newUser.Mobileno,
+                    Createdon = DateTime.Now,
                 };
                 Context.Users.Add(UserLogin);
                 Context.SaveChanges();
@@ -145,6 +150,83 @@ namespace CPositiveAPI.Controllers
             public string IsVolunteer { get; set; }
             public string IsHealthcareProfessional { get; set; }
             public string IsMentalHealthProfessional { get; set; }
+        }
+        public class CreatePersonalDetlsDto
+        {
+            public int UserId { get; set; }
+            public string Name { get; set; }
+            public int CountryId { get; set; }
+            public int StateId { get; set; }
+            public int DistrictId { get; set; }
+            public string Address { get; set; }
+            public string Pincode { get; set; }
+            public string Age { get; set; }
+            public string Gender { get; set; }
+            public string HighestQualification { get; set; }
+            public string Occupation { get; set; }
+        }
+
+        [HttpPost("add-personal-details")]
+        public IActionResult AddPersonalDetails([FromBody] CreatePersonalDetlsDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Get current user ID
+                    //var currentUser = await _userManager.GetUserAsync(User);
+                    //if (currentUser == null)
+                    //{
+                    //    return Unauthorized(); // Handle unauthorized access
+                    //}
+                    var personalDetls = new PersonalDetls
+                    {
+                        UserId = model.UserId,
+                        Name = model.Name,
+                        CountryId = model.CountryId,
+                        StateId = model.StateId,
+                        DistrictId = model.DistrictId,
+                        Address = model.Address,
+                        Pincode = model.Pincode,
+                        Age = model.Age,
+                        Gender = model.Gender,
+                        HighestQualification = model.HighestQualification,
+                        Occupation = model.Occupation,
+                        Createdon = DateTime.Now
+                    };
+
+                    Context.PersonalDetails.Add(personalDetls);
+                    Context.SaveChanges();
+
+                    return Ok(new { StatusCode = 200, Message = "Personal details added successfully", Data = personalDetls });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            return BadRequest(ModelState);
+        }
+
+        [HttpGet("countries")]
+        public IActionResult GetCountries()
+        {
+            var countries = Context.CountryMaster.ToList();
+            return Ok(countries);
+        }
+
+        [HttpGet("states/{countryId}")]
+        public IActionResult GetStates(int countryId)
+        {
+            var states = Context.StateMaster.Where(s => s.CountryId == countryId).ToList();
+            return Ok(states);
+        }
+
+        [HttpGet("districts/{stateId}")]
+        public IActionResult GetDistricts(int stateId)
+        {
+            var districts = Context.DistrictMaster.Where(d => d.stateid == stateId).ToList();
+            return Ok(districts);
         }
 
     }

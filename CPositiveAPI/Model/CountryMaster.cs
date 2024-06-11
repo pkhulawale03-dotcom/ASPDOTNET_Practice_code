@@ -4,10 +4,9 @@ namespace CPositiveAPI.Model
 {
     public class CountryMaster
     {
-        //[Key]
-        //public int CountryId { get; set; }
-        //public int CountryName { get; set; }
-        //public PersonalDetls PersonalDetls { get; set; }
-        //public StateMaster StateMaster { get; set; }
+        [Key]
+        public int CountryId { get; set; }
+        public string CountryName { get; set; }
+
     }
 }

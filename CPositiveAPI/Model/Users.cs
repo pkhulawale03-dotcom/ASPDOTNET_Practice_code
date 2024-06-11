@@ -10,7 +10,7 @@ namespace CPositiveAPI.Model
         public string Password { get; set; }
         public string ConfirmPassword {  get; set; }
         public string EmailId { get; set;}
-        public string Mobileno {  get; set; }
-       
+        public string Mobileno {  get; set; }     
+        public DateTime Createdon { get; set; }
     }
 }
