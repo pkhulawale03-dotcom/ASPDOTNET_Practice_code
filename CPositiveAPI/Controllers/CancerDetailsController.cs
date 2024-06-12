@@ -2,6 +2,7 @@
 using CPositiveAPI.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using static CPositiveAPI.Controllers.CPatientController;
 
 namespace CPositiveAPI.Controllers
@@ -62,27 +63,27 @@ namespace CPositiveAPI.Controllers
             return BadRequest(ModelState);
         }
 
-        private void AddDetails(CreateCancerDetails newUser)
+        private void AddDetails(CreateCancerDetails cancerdtls)
         {
             using var transaction = Context.Database.BeginTransaction();
             try
             {                            
                 var Cancerdtls = new CancerInfo
                 {                   
-                    UserId = newUser.UserId,
-                    CancertypeId = newUser.CancertypeId,
-                    CancerNameId = newUser.CancerNameId,
-                    StageId = newUser.StageId,
-                    GradeId = newUser.GradeId,
-                    IsFirstTime = newUser.IsFirstTime,
-                    IsRelapsed = newUser.IsRelapsed,
-                    IsTreatmentOngoing = newUser.IsTreatmentOngoing,
-                    IsSurgery = newUser.IsSurgery,
-                    IsChemo = newUser.IsChemo,
-                    IsRadiation = newUser.IsRadiation,
-                    IsTargetedTherapy = newUser.IsTargetedTherapy,
-                    IsPallitiveCare = newUser.IsPallitiveCare,
-                    IsRemission = newUser.IsRemission,
+                    UserId = cancerdtls.UserId,
+                    CancertypeId = cancerdtls.CancertypeId,
+                    CancerNameId = cancerdtls.CancerNameId,
+                    StageId = cancerdtls.StageId,
+                    GradeId = cancerdtls.GradeId,
+                    IsFirstTime = cancerdtls.IsFirstTime,
+                    IsRelapsed = cancerdtls.IsRelapsed,
+                    IsTreatmentOngoing = cancerdtls.IsTreatmentOngoing,
+                    IsSurgery = cancerdtls.IsSurgery,
+                    IsChemo = cancerdtls.IsChemo,
+                    IsRadiation = cancerdtls.IsRadiation,
+                    IsTargetedTherapy = cancerdtls.IsTargetedTherapy,
+                    IsPallitiveCare = cancerdtls.IsPallitiveCare,
+                    IsRemission = cancerdtls.IsRemission,
                     Createdon = DateTime.Now
                 };
 
@@ -114,6 +115,54 @@ namespace CPositiveAPI.Controllers
             public string IsTargetedTherapy { get; set; }
             public string IsPallitiveCare { get; set; }
             public string IsRemission { get; set; }
+        }
+
+        [HttpPost("CancerTreatement")]
+        public IActionResult Post(TreatementConduct model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    AddUser(model);
+                    return Ok(new { StatusCode = 200, Message = "Treatement Details Added Sucessfully", Data = model });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            return BadRequest(ModelState);
+        }
+
+        private void AddUser(TreatementConduct treatmentConducted)
+        {
+            using var transaction = Context.Database.BeginTransaction();
+            try
+            {              
+                var Treatement = new TreatmentConductedAt
+                {
+                    UserId = treatmentConducted.UserId,
+                    HospitalName= treatmentConducted.HospitalName,
+                    OncologistName= treatmentConducted.OncologistName,
+                    Createdon = DateTime.Now,
+                };
+                Context.TreatmentConductedAt.Add(Treatement);
+                Context.SaveChanges();
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+        public class TreatementConduct
+        {
+            public int UserId { get; set; }
+            public string HospitalName { get; set; }
+            public string OncologistName { get; set; }
         }
     }
 }
