@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Dynamic;
 using System.Net;
 
 namespace CPositiveAPI.Controllers
@@ -226,17 +227,39 @@ namespace CPositiveAPI.Controllers
         [HttpGet("states/{countryId}")]
         public IActionResult GetStates(int countryId)
         {
+            // Fetch the states from the database
             var states = Context.StateMaster.Where(s => s.CountryId == countryId).ToList();
-            return Ok(new { StatusCode = 200, Data = states });
+
+            // Use the name of the action method to generate the data property name
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var dataPropertyName = $"{actionName}Data";
+
+            // Create the response object dynamically
+            var responseObject = new ExpandoObject() as IDictionary<string, Object>;
+            responseObject.Add("StatusCode", 200);
+            responseObject.Add(dataPropertyName, states); // Use the generated name
+
+            return Ok(responseObject);
         }
 
-        
+
+
         [HttpGet("districts/{stateId}")]
         public IActionResult GetDistricts(int stateId)
         {
+            // Fetch the districts from the database
             var districts = Context.DistrictMaster.Where(d => d.stateid == stateId).ToList();
-            return Ok(new { StatusCode = 200, Data = districts });
-        }
 
+            // Use the name of the action method to generate the data property name
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var dataPropertyName = $"{actionName}Data";
+
+            // Create the response object dynamically
+            var responseObject = new ExpandoObject() as IDictionary<string, Object>;
+            responseObject.Add("StatusCode", 200);
+            responseObject.Add(dataPropertyName, districts); // Use the generated name
+
+            return Ok(responseObject);
+        }
     }
 }
