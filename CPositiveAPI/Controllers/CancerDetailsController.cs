@@ -3,6 +3,7 @@ using CPositiveAPI.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
 using static CPositiveAPI.Controllers.CPatientController;
@@ -133,6 +134,17 @@ namespace CPositiveAPI.Controllers
                 Context.CancerInfo.Add(Cancerdtls);
                 Context.SaveChanges();
 
+                var updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET CancerInfo = 'Y'
+                    WHERE UserId = @UserId AND CancerInfo IS NULL";
+
+                // Execute the update query
+                var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
+                {
+                    new SqlParameter("@UserId", cancerdtls.UserId)
+                });            
+
                 transaction.Commit();
             }
             catch (Exception)
@@ -193,6 +205,17 @@ namespace CPositiveAPI.Controllers
                 };
                 Context.TreatmentConductedAt.Add(Treatement);
                 Context.SaveChanges();
+
+                var updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET TreatmentConducted = 'Y'
+                    WHERE UserId = @UserId AND TreatmentConducted IS NULL";
+
+                // Execute the update query
+                var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
+                {
+                    new SqlParameter("@UserId", treatmentConducted.UserId)
+                });
 
                 transaction.Commit();
             }
