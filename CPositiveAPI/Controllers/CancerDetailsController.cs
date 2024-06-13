@@ -1,5 +1,6 @@
 ﻿using CPositiveAPI.Data;
 using CPositiveAPI.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace CPositiveAPI.Controllers
             Context = dbContext;
         }
 
+       
         [HttpGet("CancerName")]
         public IActionResult GetCancerName()
         {
@@ -24,6 +26,7 @@ namespace CPositiveAPI.Controllers
             return Ok(cancername);
         }
 
+        
         [HttpGet("CancerType")]
         public IActionResult GetCancerType()
         {
@@ -31,6 +34,7 @@ namespace CPositiveAPI.Controllers
             return Ok(cancertype);
         }
 
+       
         [HttpGet("CancerGrades")]
         public IActionResult GetCancerGrades()
         {
@@ -38,6 +42,7 @@ namespace CPositiveAPI.Controllers
             return Ok(cancergrade);
         }
 
+       
         [HttpGet("CancerStages")]
         public IActionResult GetCancerStages()
         {
@@ -45,6 +50,7 @@ namespace CPositiveAPI.Controllers
             return Ok(cancerstage);
         }
 
+       
         [HttpPost("CancerDetails")]      
         public IActionResult AddCancerDetails([FromBody] CreateCancerDetails model)
         {
@@ -117,6 +123,7 @@ namespace CPositiveAPI.Controllers
             public string IsRemission { get; set; }
         }
 
+       
         [HttpPost("CancerTreatement")]
         public IActionResult Post(TreatementConduct model)
         {

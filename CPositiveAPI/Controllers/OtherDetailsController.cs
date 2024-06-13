@@ -1,5 +1,6 @@
 ﻿using CPositiveAPI.Data;
 using CPositiveAPI.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ namespace CPositiveAPI.Controllers
             Context = dbContext;
         }
 
+      
         [HttpPost("PatientDetails")]
         public IActionResult Post(Patientdtls model)
         {
@@ -63,6 +65,7 @@ namespace CPositiveAPI.Controllers
             public string RelWithPatient { get; set; }
         }
 
+        
         [HttpPost("OrganizationDetails")]
         public IActionResult OrganizationDetls(Organization model)
         {

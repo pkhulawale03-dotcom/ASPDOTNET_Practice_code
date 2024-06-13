@@ -1,5 +1,6 @@
 ﻿using CPositiveAPI.Data;
 using CPositiveAPI.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,7 @@ namespace CPositiveAPI.Controllers
             Context=dbContext;            
         }
 
+       
         [HttpGet]
         [Route("GetCategory")]
         public IActionResult GetCategory()
@@ -43,6 +45,7 @@ namespace CPositiveAPI.Controllers
             }
         }
 
+       
         [HttpGet("check-username")]
         public IActionResult CheckUsernameExists([FromQuery] string username)
         {
@@ -54,11 +57,12 @@ namespace CPositiveAPI.Controllers
             bool exists = Context.Users.Any(u => u.Username == username);
             if (exists)
             {
-                return Ok(new { StatusCode = 200, Message = "Username exists" });
+                return Ok(new { StatusCode = 200, Message = "Username exists",Data=username });
             }
-            return Ok(new { StatusCode = 200, Message = "Username is available" });
+            return Ok(new { StatusCode = 200, Message = "Username is available", Data = username });
         }
 
+        
         [HttpGet("check-mobileno")]
         public IActionResult CheckMobilenoExists([FromQuery] string mobileno)
         {
@@ -70,11 +74,12 @@ namespace CPositiveAPI.Controllers
             bool exists = Context.Users.Any(u => u.Mobileno == mobileno);
             if (exists)
             {
-                return Ok(new { StatusCode = 200, Message = "Mobile number exists" });
+                return Ok(new { StatusCode = 200, Message = "Mobile number exists", Data = mobileno });
             }
-            return Ok(new { StatusCode = 200, Message = "Mobile number is available" });
+            return Ok(new { StatusCode = 200, Message = "Mobile number is available", Data = mobileno });
         }
 
+       
         [HttpPost("AddUsers")]
         public IActionResult AddUsers([FromBody] CreateUserDto model)
         {
@@ -166,6 +171,7 @@ namespace CPositiveAPI.Controllers
             public string Occupation { get; set; }
         }
 
+       
         [HttpPost("add-personal-details")]
         public IActionResult AddPersonalDetails([FromBody] CreatePersonalDetlsDto model)
         {
@@ -208,25 +214,28 @@ namespace CPositiveAPI.Controllers
             return BadRequest(ModelState);
         }
 
+       
         [HttpGet("countries")]
         public IActionResult GetCountries()
         {
             var countries = Context.CountryMaster.ToList();
-            return Ok(countries);
+            return Ok(new { StatusCode = 200, Data = countries });
         }
 
+       
         [HttpGet("states/{countryId}")]
         public IActionResult GetStates(int countryId)
         {
             var states = Context.StateMaster.Where(s => s.CountryId == countryId).ToList();
-            return Ok(states);
+            return Ok(new { StatusCode = 200, Data = states });
         }
 
+        
         [HttpGet("districts/{stateId}")]
         public IActionResult GetDistricts(int stateId)
         {
             var districts = Context.DistrictMaster.Where(d => d.stateid == stateId).ToList();
-            return Ok(districts);
+            return Ok(new { StatusCode = 200, Data = districts });
         }
 
     }
