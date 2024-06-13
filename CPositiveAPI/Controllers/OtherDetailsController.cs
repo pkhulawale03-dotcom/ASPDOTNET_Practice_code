@@ -3,6 +3,9 @@ using CPositiveAPI.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using static CPositiveAPI.Controllers.OtherDetailsController;
 
 namespace CPositiveAPI.Controllers
 {
@@ -50,6 +53,18 @@ namespace CPositiveAPI.Controllers
                 Context.PatientDetails.Add(patient);
                 Context.SaveChanges();
 
+                var updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET PatientDetails = 'Y'
+                    WHERE UserId = @UserId AND PatientDetails IS NULL";
+
+                // Execute the update query
+                var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
+                {
+                    new SqlParameter("@UserId", patientdtls.UserId)
+                });
+
+
                 transaction.Commit();
             }
             catch (Exception)
@@ -67,7 +82,7 @@ namespace CPositiveAPI.Controllers
 
         
         [HttpPost("OrganizationDetails")]
-        public IActionResult OrganizationDetls(Organization model)
+        public IActionResult OrganizationDetails(Organization model)
         {
             if (ModelState.IsValid)
             {
@@ -102,6 +117,17 @@ namespace CPositiveAPI.Controllers
                 Context.OrganizationDetails.Add(org);
                 Context.SaveChanges();
 
+                var updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET OrganizationalDetails = 'Y'
+                    WHERE UserId = @UserId AND OrganizationalDetails IS NULL";
+
+                // Execute the update query
+                var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
+                {
+                    new SqlParameter("@UserId", organization.UserId)
+                });
+
                 transaction.Commit();
             }
             catch (Exception)
@@ -118,6 +144,68 @@ namespace CPositiveAPI.Controllers
             public string OrgEmail { get; set; }
             public string OrgMobileNumber { get; set; }
             public string OrgAddress { get; set; }
+        }
+
+        [HttpPost("OccupationDetails")]
+        public IActionResult OccupationDetails(Occupation model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    AddOccupation(model);
+                    return Ok(new { StatusCode = 200, Message = "Occupation Details Added Sucessfully", Data = model });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            return BadRequest(ModelState);
+        }
+
+        private void AddOccupation(Occupation occupation)
+        {
+            using var transaction = Context.Database.BeginTransaction();
+            try
+            {
+                var occup = new OccupationalDetails
+                {
+                    UserId = occupation.UserId,
+                    Specilization = occupation.Specilization,
+                    Experties = occupation.Experties,
+                    Experience = occupation.Experience,                    
+                    Createdon = DateTime.Now,
+                };
+                Context.OccupationalDetails.Add(occup);
+                Context.SaveChanges();
+
+                var updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET OccupationalDetails = 'Y'
+                    WHERE UserId = @UserId AND OccupationalDetails IS NULL";
+
+                // Execute the update query
+                var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
+                {
+                    new SqlParameter("@UserId", occupation.UserId)
+                });
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        public class Occupation
+        {
+            public int UserId { get; set; }
+            public string Specilization { get; set; }
+            public string Experties { get; set; }
+            public string Experience { get; set; }
         }
     }
 }
