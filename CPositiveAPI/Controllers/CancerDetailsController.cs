@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Dynamic;
 using static CPositiveAPI.Controllers.CPatientController;
 
 namespace CPositiveAPI.Controllers
@@ -23,7 +24,18 @@ namespace CPositiveAPI.Controllers
         public IActionResult GetCancerName()
         {
             var cancername = Context.CancerNameMaster.ToList();
-            return Ok(cancername);
+
+            // Use the name of the action method to generate the data property name
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var dataPropertyName = $"{actionName}Data";
+
+            // Create the response object dynamically
+            var responseObject = new ExpandoObject() as IDictionary<string, Object>;
+            responseObject.Add("StatusCode", 200);
+            responseObject.Add(dataPropertyName, cancername); // Use the generated name
+
+            return Ok(responseObject);          
+
         }
 
         
@@ -31,7 +43,16 @@ namespace CPositiveAPI.Controllers
         public IActionResult GetCancerType()
         {
             var cancertype = Context.CancerTypesMaster.ToList();
-            return Ok(cancertype);
+            // Use the name of the action method to generate the data property name
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var dataPropertyName = $"{actionName}Data";
+
+            // Create the response object dynamically
+            var responseObject = new ExpandoObject() as IDictionary<string, Object>;
+            responseObject.Add("StatusCode", 200);
+            responseObject.Add(dataPropertyName, cancertype); // Use the generated name
+
+            return Ok(responseObject);
         }
 
        
@@ -39,7 +60,15 @@ namespace CPositiveAPI.Controllers
         public IActionResult GetCancerGrades()
         {
             var cancergrade = Context.GradeMaster.ToList();
-            return Ok(cancergrade);
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var dataPropertyName = $"{actionName}Data";
+
+            // Create the response object dynamically
+            var responseObject = new ExpandoObject() as IDictionary<string, Object>;
+            responseObject.Add("StatusCode", 200);
+            responseObject.Add(dataPropertyName, cancergrade); // Use the generated name
+
+            return Ok(responseObject);
         }
 
        
@@ -47,7 +76,15 @@ namespace CPositiveAPI.Controllers
         public IActionResult GetCancerStages()
         {
             var cancerstage = Context.StageMaster.ToList();
-            return Ok(cancerstage);
+            var actionName = ControllerContext.ActionDescriptor.ActionName;
+            var dataPropertyName = $"{actionName}Data";
+
+            // Create the response object dynamically
+            var responseObject = new ExpandoObject() as IDictionary<string, Object>;
+            responseObject.Add("StatusCode", 200);
+            responseObject.Add(dataPropertyName, cancerstage); // Use the generated name
+
+            return Ok(responseObject);
         }
 
        

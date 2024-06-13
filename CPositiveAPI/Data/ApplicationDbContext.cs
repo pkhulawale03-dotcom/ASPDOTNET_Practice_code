@@ -28,5 +28,6 @@ namespace CPositiveAPI.Data
         public DbSet<OrganizationDetails> OrganizationDetails { get; set; }
         public DbSet<AreaofServiceMaster> AreaofServiceMaster { get; set;}
         public DbSet<OccupationalDetails> OccupationalDetails { get;set; }
+        public DbSet<IsRegistrationCompleted> IsRegistrationCompleted {  get; set; }
     }
 }

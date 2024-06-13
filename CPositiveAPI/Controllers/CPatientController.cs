@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
 using System.Net;
@@ -103,9 +104,10 @@ namespace CPositiveAPI.Controllers
         {
             using var transaction = Context.Database.BeginTransaction();
             try
-            {                          
-                var UserLogin = new Users
-                {                  
+            {
+                // Create and add the user login details
+                var userLogin = new Users
+                {
                     Username = newUser.Username,
                     Password = newUser.Password,
                     ConfirmPassword = newUser.ConfirmPassword,
@@ -113,12 +115,14 @@ namespace CPositiveAPI.Controllers
                     Mobileno = newUser.Mobileno,
                     Createdon = DateTime.Now,
                 };
-                Context.Users.Add(UserLogin);
-                Context.SaveChanges();
+                Context.Users.Add(userLogin);
+                Context.SaveChanges(); // Save to generate the UserId
 
-                var userId = UserLogin.UserId;
+                // Retrieve the newly generated UserId
+                var userId = userLogin.UserId;
 
-                var usercategory = new UserCategoryLink
+                // Create and add the user category link
+                var userCategory = new UserCategoryLink
                 {
                     UserId = userId,
                     CPositive = newUser.IsCPositive,
@@ -128,18 +132,30 @@ namespace CPositiveAPI.Controllers
                     HealthcareProfessional = newUser.IsHealthcareProfessional,
                     MentalHealthProfessional = newUser.IsMentalHealthProfessional
                 };
+                Context.UserCategoryLinking.Add(userCategory);
 
-                Context.UserCategoryLinking.Add(usercategory);
+                // Create and add the registration completion record
+                var isRegistrationCompleted = new IsRegistrationCompleted
+                {
+                    UserId = userId,
+                    Createdon = DateTime.Now,
+                };
+                Context.IsRegistrationCompleted.Add(isRegistrationCompleted);
+
+                // Save all changes in one go
                 Context.SaveChanges();
 
+                // Commit the transaction
                 transaction.Commit();
             }
             catch (Exception)
             {
+                // Rollback the transaction in case of an error
                 transaction.Rollback();
                 throw;
             }
         }
+
 
         public class CreateUserDto
         {
@@ -155,7 +171,7 @@ namespace CPositiveAPI.Controllers
             public string IsFamilyMember { get; set; }
             public string IsVolunteer { get; set; }
             public string IsHealthcareProfessional { get; set; }
-            public string IsMentalHealthProfessional { get; set; }
+            public string IsMentalHealthProfessional { get; set; }          
         }
         public class CreatePersonalDetlsDto
         {
@@ -178,44 +194,64 @@ namespace CPositiveAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                try
+                using (var transaction = Context.Database.BeginTransaction())
                 {
-                    // Get current user ID
-                    //var currentUser = await _userManager.GetUserAsync(User);
-                    //if (currentUser == null)
-                    //{
-                    //    return Unauthorized(); // Handle unauthorized access
-                    //}
-                    var personalDetls = new PersonalDetls
+                    try
                     {
-                        UserId = model.UserId,
-                        Name = model.Name,
-                        CountryId = model.CountryId,
-                        StateId = model.StateId,
-                        DistrictId = model.DistrictId,
-                        Address = model.Address,
-                        Pincode = model.Pincode,
-                        Age = model.Age,
-                        Gender = model.Gender,
-                        HighestQualification = model.HighestQualification,
-                        Occupation = model.Occupation,
-                        Createdon = DateTime.Now
-                    };
+                        // Create a new record for the PersonalDetls table
+                        var personalDetls = new PersonalDetls
+                        {
+                            UserId = model.UserId,
+                            Name = model.Name,
+                            CountryId = model.CountryId,
+                            StateId = model.StateId,
+                            DistrictId = model.DistrictId,
+                            Address = model.Address,
+                            Pincode = model.Pincode,
+                            Age = model.Age,
+                            Gender = model.Gender,
+                            HighestQualification = model.HighestQualification,
+                            Occupation = model.Occupation,
+                            Createdon = DateTime.Now
+                        };
 
-                    Context.PersonalDetails.Add(personalDetls);
-                    Context.SaveChanges();
+                        // Insert the new record into PersonalDetls
+                        Context.PersonalDetails.Add(personalDetls);
+                        Context.SaveChanges();
 
-                    return Ok(new { StatusCode = 200, Message = "Personal details added successfully", Data = personalDetls });
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(ex.Message);
+                        // Construct the SQL query to update the IsRegistrationCompleted table
+                        var updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET Personaldetails = 'Y'
+                    WHERE UserId = @UserId AND Personaldetails IS NULL";
+
+                        // Execute the update query
+                        var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
+                        {
+                    new SqlParameter("@UserId", model.UserId)
+                });
+
+                        // Commit the transaction
+                        transaction.Commit();
+
+                        // Return success response
+                        return Ok(new { StatusCode = 200, Message = "Personal details added successfully", Data = personalDetls });
+                    }
+                    catch (Exception ex)
+                    {
+                        // Rollback the transaction if there is an error
+                        transaction.Rollback();
+                        return BadRequest(ex.Message);
+                    }
                 }
             }
+
             return BadRequest(ModelState);
         }
 
-       
+
+
+
         [HttpGet("countries")]
         public IActionResult GetCountries()
         {
