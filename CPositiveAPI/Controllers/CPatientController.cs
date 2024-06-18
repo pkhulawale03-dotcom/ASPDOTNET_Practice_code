@@ -6,8 +6,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Dynamic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CPositiveAPI.Controllers
 {
@@ -22,9 +26,13 @@ namespace CPositiveAPI.Controllers
         //    _context = context;
         //    _userManager = userManager;
         //}
-        public CPatientController(ApplicationDbContext dbContext)
+        private IConfiguration _configuration;
+        //public EncryptionDecryption enDn = new EncryptionDecryption();
+        public CPatientController(ApplicationDbContext dbContext, IConfiguration configuration)
         {
-            Context=dbContext;            
+            _configuration = configuration;
+
+            Context = dbContext;            
         }
 
        
@@ -59,7 +67,7 @@ namespace CPositiveAPI.Controllers
             bool exists = Context.Users.Any(u => u.Username == username);
             if (exists)
             {
-                return Ok(new { StatusCode = 200, Message = "Username exists",Data=username });
+                return Ok(new { StatusCode = 200, Message = "Username exists", Data=username });
             }
             return Ok(new { StatusCode = 200, Message = "Username is available", Data = username });
         }
@@ -81,7 +89,18 @@ namespace CPositiveAPI.Controllers
             return Ok(new { StatusCode = 200, Message = "Mobile number is available", Data = mobileno });
         }
 
-       
+        private string GenerateToken()
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], null,
+                expires: DateTime.Now.AddMinutes(5),
+                signingCredentials: credentials
+                );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
         [HttpPost("AddUsers")]
         public IActionResult AddUsers([FromBody] CreateUserDto model)
         {
@@ -90,7 +109,9 @@ namespace CPositiveAPI.Controllers
                 try
                 {
                     AddUser(model);
-                    return Ok(new { StatusCode = 200, Message = "User Added Successfully", Data = model });
+                    var token = GenerateToken();
+                    var userId = AddUser(model); // Get the generated UserId
+                    return Ok(new { StatusCode = 200, token = token, Message = "User Added Successfully", UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -100,7 +121,7 @@ namespace CPositiveAPI.Controllers
             return BadRequest(ModelState);
         }
 
-        private void AddUser(CreateUserDto newUser)
+        private int AddUser(CreateUserDto newUser)
         {
             using var transaction = Context.Database.BeginTransaction();
             try
@@ -108,6 +129,7 @@ namespace CPositiveAPI.Controllers
                 // Create and add the user login details
                 var userLogin = new Users
                 {
+                    UserId = newUser.userId,
                     Username = newUser.Username,
                     Password = newUser.Password,
                     ConfirmPassword = newUser.ConfirmPassword,
@@ -117,10 +139,9 @@ namespace CPositiveAPI.Controllers
                 };
                 Context.Users.Add(userLogin);
                 Context.SaveChanges(); // Save to generate the UserId
-
+               
                 // Retrieve the newly generated UserId
                 var userId = userLogin.UserId;
-
                 // Create and add the user category link
                 var userCategory = new UserCategoryLink
                 {
@@ -147,6 +168,7 @@ namespace CPositiveAPI.Controllers
 
                 // Commit the transaction
                 transaction.Commit();
+                return userId; // Return the generated UserId
             }
             catch (Exception)
             {
@@ -159,6 +181,7 @@ namespace CPositiveAPI.Controllers
 
         public class CreateUserDto
         {
+            public int userId { get; set; }
             public string Username { get; set; }
             public string Password { get; set; }
             public string ConfirmPassword { get; set; }
@@ -173,6 +196,7 @@ namespace CPositiveAPI.Controllers
             public string IsHealthcareProfessional { get; set; }
             public string IsMentalHealthProfessional { get; set; }          
         }
+
         public class CreatePersonalDetlsDto
         {
             public int UserId { get; set; }
@@ -188,7 +212,7 @@ namespace CPositiveAPI.Controllers
             public string Occupation { get; set; }
         }
 
-       
+        [Authorize]
         [HttpPost("add-personal-details")]
         public IActionResult AddPersonalDetails([FromBody] CreatePersonalDetlsDto model)
         {
