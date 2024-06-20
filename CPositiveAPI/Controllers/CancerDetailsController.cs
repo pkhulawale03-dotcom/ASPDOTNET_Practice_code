@@ -5,7 +5,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Dynamic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using static CPositiveAPI.Controllers.CPatientController;
 
 namespace CPositiveAPI.Controllers
@@ -15,9 +18,11 @@ namespace CPositiveAPI.Controllers
     public class CancerDetailsController : ControllerBase
     {
         public readonly ApplicationDbContext Context;
-        public CancerDetailsController(ApplicationDbContext dbContext)
+        private IConfiguration _configuration;
+        public CancerDetailsController(ApplicationDbContext dbContext, IConfiguration configuration)
         {
             Context = dbContext;
+            _configuration = configuration;
         }
 
        
@@ -96,8 +101,10 @@ namespace CPositiveAPI.Controllers
             {
                 try
                 {
+                    var token = GenerateToken();
                     AddDetails(model);
-                    return Ok(new { StatusCode = 200, Message = "Cancer Details Added Successfully", Data = model });
+                    int userId = model.UserId;
+                    return Ok(new { StatusCode = 200,token = token, Message = "Cancer Details Added Successfully",UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -172,16 +179,29 @@ namespace CPositiveAPI.Controllers
             public string IsRemission { get; set; }
         }
 
-       
+        private string GenerateToken()
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], null,
+                expires: DateTime.Now.AddMinutes(5),
+                signingCredentials: credentials
+                );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
         [HttpPost("CancerTreatement")]
-        public IActionResult Post(TreatementConduct model)
+        public IActionResult Post([FromBody] TreatementConduct model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var token = GenerateToken();
                     AddUser(model);
-                    return Ok(new { StatusCode = 200, Message = "Treatement Details Added Sucessfully", Data = model });
+                    int userId = model.UserId;
+                    return Ok(new { StatusCode = 200,token = token, Message = "Treatement Details Added Sucessfully", UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {

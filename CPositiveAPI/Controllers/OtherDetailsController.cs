@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using static CPositiveAPI.Controllers.OtherDetailsController;
 
 namespace CPositiveAPI.Controllers
@@ -14,12 +17,26 @@ namespace CPositiveAPI.Controllers
     public class OtherDetailsController : ControllerBase
     {
         public readonly ApplicationDbContext Context;
-        public OtherDetailsController(ApplicationDbContext dbContext)
+        private IConfiguration _configuration;
+        public OtherDetailsController(ApplicationDbContext dbContext, IConfiguration configuration)
         {
             Context = dbContext;
+            _configuration = configuration;
         }
 
-      
+        private string GenerateToken()
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], null,
+                expires: DateTime.Now.AddMinutes(5),
+                signingCredentials: credentials
+                );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+
         [HttpPost("PatientDetails")]
         public IActionResult Post(Patientdtls model)
         {
@@ -27,8 +44,10 @@ namespace CPositiveAPI.Controllers
             {
                 try
                 {
+                    var token = GenerateToken();
                     AddPatient(model);
-                    return Ok(new { StatusCode = 200, Message = "Patient Details Added Sucessfully", Data = model });
+                    int userId = model.UserId;
+                    return Ok(new { StatusCode = 200,token = token, Message = "Patient Details Added Sucessfully",UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -88,8 +107,10 @@ namespace CPositiveAPI.Controllers
             {
                 try
                 {
+                    var token = GenerateToken();
                     AddOrganization(model);
-                    return Ok(new { StatusCode = 200, Message = "Organization Details Added Sucessfully", Data = model });
+                    int userId = model.UserId;
+                    return Ok(new { StatusCode = 200,token = token, Message = "Organization Details Added Sucessfully",UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -184,8 +205,10 @@ namespace CPositiveAPI.Controllers
             {
                 try
                 {
+                    var token = GenerateToken();
                     AddOccupation(model);
-                    return Ok(new { StatusCode = 200, Message = "Occupation Details Added Sucessfully", Data = model });
+                    int userId = model.UserId;
+                    return Ok(new { StatusCode = 200,token = token, Message = "Occupation Details Added Sucessfully",UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -246,7 +269,8 @@ namespace CPositiveAPI.Controllers
             {
                 return BadRequest("Invalid input data.");
             }
-
+            var token = GenerateToken();
+            var userid=model.UserId;
             using (var transaction = Context.Database.BeginTransaction())
             {
                 try
@@ -267,7 +291,7 @@ namespace CPositiveAPI.Controllers
                     transaction.Commit();
 
                     // Return success response
-                    return Ok(new { StatusCode = 200, Message = "Details updated successfully", RowsAffected = rowsAffected });
+                    return Ok(new { StatusCode = 200,token = token, Message = "Details updated successfully",UserId = userid, RowsAffected = rowsAffected });
                 }
                 catch (Exception ex)
                 {
