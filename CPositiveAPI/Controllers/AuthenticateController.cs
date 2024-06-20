@@ -75,33 +75,63 @@ namespace CPositiveAPI.Controllers
         {
             IActionResult response = Unauthorized();
 
-            // Query the database to find the user with the provided EmailId and Password
-            var user = Context.Users
-           .Where(u => u.Username == loginRequest.Username && u.Password == loginRequest.Password)
-           .FirstOrDefault();
+            // LINQ query to join the tables and handle possible null values in IsRegistrationCompleted
+            var userWithDetails = (from u in Context.Users
+                                   join uc in Context.UserCategoryLinking on u.UserId equals uc.UserId
+                                   join rc in Context.IsRegistrationCompleted on u.UserId equals rc.UserId into rcGroup
+                                   from rc in rcGroup.DefaultIfEmpty()
+                                   where u.Username == loginRequest.Username && u.Password == loginRequest.Password
+                                   select new
+                                   {
+                                       u.UserId,
+                                       u.Username,
+                                       u.Password,                                     
+                                       uc.CPositive,
+                                       uc.Caregiver,
+                                       uc.FamilyMember,
+                                       uc.Volunteer,
+                                       uc.HealthcareProfessional,
+                                       uc.MentalHealthProfessional,
+                                       rc.Personaldetails,
+                                       rc.CancerInfo,
+                                       rc.TreatmentConducted,
+                                       rc.PatientDetails,
+                                       rc.OrganizationalDetails,
+                                       rc.OccupationalDetails,
+                                       rc.RegistrationCompleted
+                                   }).FirstOrDefault();
 
-            if (user != null)
+            if (userWithDetails != null)
             {
                 var token = GenerateToken();
                 response = Ok(new
                 {
                     token = token,
-                    userId = user.UserId,
-                    Data = new
-                    {
-                        user.EmailId,
-                        user.Password
-                    }
+                    userId = userWithDetails.UserId,
+                    Data = userWithDetails
                 });
             }
             return response;
         }
 
-    
+
         public class Login
         {
             public string Username { get; set; }
             public string Password { get; set; }
+        //    public string CPositive { get; set; }
+        //public string Caregiver { get; set; }
+        //public string FamilyMember { get; set; }
+        //public string Volunteer { get; set; }
+        //public string HealthcareProfessional { get; set; }
+        //public string MentalHealthProfessional { get; set; }
+        //    public string Personaldetails { get; set; }
+        //    public string CancerInfo { get; set; }
+        //    public string TreatmentConducted { get; set; }
+        //    public string PatientDetails { get; set; }
+        //    public string OrganizationalDetails { get; set; }
+        //    public string OccupationalDetails { get; set; }
+        //    public string RegistrationCompleted { get; set; }
         }
 
     }
