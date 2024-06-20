@@ -108,7 +108,7 @@ namespace CPositiveAPI.Controllers
             {
                 try
                 {
-                    AddUser(model);
+                   // AddUser(model);
                     var token = GenerateToken();
                     var userId = AddUser(model); // Get the generated UserId
                     return Ok(new { StatusCode = 200, token = token, Message = "User Added Successfully", UserId = userId, Data = model });
@@ -206,13 +206,13 @@ namespace CPositiveAPI.Controllers
             public int DistrictId { get; set; }
             public string Address { get; set; }
             public string Pincode { get; set; }
-            public string Age { get; set; }
+            public int Age { get; set; }
             public string Gender { get; set; }
             public string HighestQualification { get; set; }
             public string Occupation { get; set; }
         }
 
-        [Authorize]
+        
         [HttpPost("add-personal-details")]
         public IActionResult AddPersonalDetails([FromBody] CreatePersonalDetlsDto model)
         {
@@ -222,6 +222,8 @@ namespace CPositiveAPI.Controllers
                 {
                     try
                     {
+                        var token = GenerateToken();
+                     
                         // Create a new record for the PersonalDetls table
                         var personalDetls = new PersonalDetls
                         {
@@ -259,7 +261,7 @@ namespace CPositiveAPI.Controllers
                         transaction.Commit();
 
                         // Return success response
-                        return Ok(new { StatusCode = 200, Message = "Personal details added successfully", Data = personalDetls });
+                        return Ok(new { StatusCode = 200, token = token, Message = "Personal Details Added Successfully", Data = personalDetls });
                     }
                     catch (Exception ex)
                     {

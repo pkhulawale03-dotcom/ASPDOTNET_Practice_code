@@ -117,6 +117,25 @@ namespace CPositiveAPI.Controllers
                 Context.OrganizationDetails.Add(org);
                 Context.SaveChanges();
 
+                var userId = org.UserId;
+
+                var areaofservice = new AreaofServiceMaster
+                {
+                    UserId = userId,
+                    IsFinancialSupport = organization.IsFinancialSupport,
+                    IsMedicalSupport = organization.IsMedicalSupport,
+                    IsLogisticSupport = organization.IsLogisticSupport,
+                    IsCareGiverServices = organization.IsCareGiverServices,
+                    IsMentalHealthSupport = organization.IsMentalHealthSupport,
+                    IsTraining = organization.IsTraining,
+                    IsAwareness = organization.IsAwareness,
+                    IsScreening = organization.IsScreening,
+                    IsOther = organization.IsOther,
+                    IfOtherTestHere = organization.IfOtherTestHere,
+                    Createdon = DateTime.Now,
+                };
+                Context.AreaofServiceMaster.Add(areaofservice);
+
                 var updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET OrganizationalDetails = 'Y'
@@ -127,6 +146,8 @@ namespace CPositiveAPI.Controllers
                 {
                     new SqlParameter("@UserId", organization.UserId)
                 });
+
+                Context.SaveChanges();
 
                 transaction.Commit();
             }
@@ -144,6 +165,16 @@ namespace CPositiveAPI.Controllers
             public string OrgEmail { get; set; }
             public string OrgMobileNumber { get; set; }
             public string OrgAddress { get; set; }
+            public string IsFinancialSupport { get; set; }
+            public string IsMedicalSupport { get; set; }
+            public string IsLogisticSupport { get; set; }
+            public string IsCareGiverServices { get; set; }
+            public string IsMentalHealthSupport { get; set; }
+            public string IsTraining { get; set; }
+            public string IsAwareness { get; set; }
+            public string IsScreening { get; set; }
+            public string IsOther { get; set; }
+            public string IfOtherTestHere { get; set; }
         }
 
         [HttpPost("OccupationDetails")]
@@ -207,5 +238,50 @@ namespace CPositiveAPI.Controllers
             public string Experties { get; set; }
             public string Experience { get; set; }
         }
+
+        [HttpPost("update-details")]
+        public IActionResult UpdateDetails([FromBody] UpdateDetailsDto model)
+        {
+            if (model == null || model.UserId == 0)
+            {
+                return BadRequest("Invalid input data.");
+            }
+
+            using (var transaction = Context.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Construct the SQL query to update the IsRegistrationCompleted table
+                    var updateSql = @"
+                        UPDATE IsRegistrationCompleted
+                        SET RegistrationCompleted = 'Y'
+                        WHERE UserId = @UserId AND RegistrationCompleted IS NULL";
+
+                    // Execute the update query
+                    var rowsAffected = Context.Database.ExecuteSqlRaw(updateSql, new[]
+                    {
+                        new SqlParameter("@UserId", model.UserId)
+                    });
+
+                    // Commit the transaction
+                    transaction.Commit();
+
+                    // Return success response
+                    return Ok(new { StatusCode = 200, Message = "Details updated successfully", RowsAffected = rowsAffected });
+                }
+                catch (Exception ex)
+                {
+                    // Rollback the transaction if there is an error
+                    transaction.Rollback();
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
+            }
+        }
+   
+
+    public class UpdateDetailsDto
+    {
+        public int UserId { get; set; }
     }
+  }
 }

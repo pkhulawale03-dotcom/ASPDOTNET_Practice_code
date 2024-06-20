@@ -28,8 +28,8 @@ namespace CPositiveAPI.Controllers
             using var transaction = Context.Database.BeginTransaction();
             try
             {
-                var EmailId = Context.Users.Where(u => u.EmailId == user.EmailId)
-                            .Select(u => u.EmailId)
+                var EmailId = Context.Users.Where(u => u.Username == user.Username)
+                            .Select(u => u.Username)
                 .FirstOrDefault();
 
                 var Password = Context.Users.Where(u => u.Password == user.Password)
@@ -38,12 +38,13 @@ namespace CPositiveAPI.Controllers
 
                 if (EmailId != null && Password != null)
                 {
-                    var UserId = Context.Users.Where(u => u.EmailId == EmailId && u.Password == Password)
+                    var UserId = Context.Users.Where(u => u.Username == EmailId && u.Password == Password)
                                 .Select(u => u.UserId)
                                 .FirstOrDefault();                 
 
                     return true;
                 }
+               
                 return false;
             }
             catch (Exception)
@@ -52,6 +53,9 @@ namespace CPositiveAPI.Controllers
                 throw;
             }
         }
+
+       
+
 
         private string GenerateToken()
         {
@@ -73,27 +77,30 @@ namespace CPositiveAPI.Controllers
 
             // Query the database to find the user with the provided EmailId and Password
             var user = Context.Users
-                .Where(u => u.EmailId == loginRequest.EmailId && u.Password == loginRequest.Password)
-                .FirstOrDefault();
-          
+           .Where(u => u.Username == loginRequest.Username && u.Password == loginRequest.Password)
+           .FirstOrDefault();
+
             if (user != null)
-            {                
-                var token = GenerateToken();             
+            {
+                var token = GenerateToken();
                 response = Ok(new
                 {
                     token = token,
+                    userId = user.UserId,
                     Data = new
                     {
                         user.EmailId,
                         user.Password
                     }
                 });
-            }           
+            }
             return response;
         }
+
+    
         public class Login
         {
-            public string EmailId { get; set; }
+            public string Username { get; set; }
             public string Password { get; set; }
         }
 

@@ -14,7 +14,7 @@ namespace CPositiveAPI.Model
         public int DistrictId { get; set; }//forigen key from districtmaster
         public string Address { get; set; }
         public string Pincode { get; set; }
-        public string Age { get; set; }
+        public int Age { get; set; }
         public string Gender { get; set; }
         public string HighestQualification { get; set; }
         public string Occupation { get; set; }
