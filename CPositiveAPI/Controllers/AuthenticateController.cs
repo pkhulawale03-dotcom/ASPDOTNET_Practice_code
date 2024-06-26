@@ -54,9 +54,6 @@ namespace CPositiveAPI.Controllers
             }
         }
 
-       
-
-
         private string GenerateToken()
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -119,19 +116,6 @@ namespace CPositiveAPI.Controllers
         {
             public string Username { get; set; }
             public string Password { get; set; }
-        //    public string CPositive { get; set; }
-        //public string Caregiver { get; set; }
-        //public string FamilyMember { get; set; }
-        //public string Volunteer { get; set; }
-        //public string HealthcareProfessional { get; set; }
-        //public string MentalHealthProfessional { get; set; }
-        //    public string Personaldetails { get; set; }
-        //    public string CancerInfo { get; set; }
-        //    public string TreatmentConducted { get; set; }
-        //    public string PatientDetails { get; set; }
-        //    public string OrganizationalDetails { get; set; }
-        //    public string OccupationalDetails { get; set; }
-        //    public string RegistrationCompleted { get; set; }
         }
 
     }
