@@ -159,6 +159,13 @@ namespace CPositiveAPI.Controllers
                 var isRegistrationCompleted = new IsRegistrationCompleted
                 {
                     UserId = userId,
+                    Personaldetails = "N",
+                    CancerInfo = "N",
+                    TreatmentConducted = "N",
+                    PatientDetails = "N",
+                    OrganizationalDetails = "N",
+                    OccupationalDetails = "N",
+                    RegistrationCompleted = "N",
                     Createdon = DateTime.Now,
                 };
                 Context.IsRegistrationCompleted.Add(isRegistrationCompleted);
@@ -249,7 +256,7 @@ namespace CPositiveAPI.Controllers
                         var updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET Personaldetails = 'Y'
-                    WHERE UserId = @UserId AND Personaldetails IS NULL";
+                    WHERE UserId = @UserId AND Personaldetails != 'Y'";
 
                         // Execute the update query
                         var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]

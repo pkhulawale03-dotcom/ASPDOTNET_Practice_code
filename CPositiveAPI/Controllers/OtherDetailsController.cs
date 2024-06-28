@@ -160,7 +160,7 @@ namespace CPositiveAPI.Controllers
                 var updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET OrganizationalDetails = 'Y'
-                    WHERE UserId = @UserId AND OrganizationalDetails IS NULL";
+                    WHERE UserId = @UserId AND OrganizationalDetails != 'Y'";
 
                 // Execute the update query
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
@@ -237,7 +237,7 @@ namespace CPositiveAPI.Controllers
                 var updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET OccupationalDetails = 'Y'
-                    WHERE UserId = @UserId AND OccupationalDetails IS NULL";
+                    WHERE UserId = @UserId AND OccupationalDetails != 'Y'";
 
                 // Execute the update query
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
@@ -279,7 +279,7 @@ namespace CPositiveAPI.Controllers
                     var updateSql = @"
                         UPDATE IsRegistrationCompleted
                         SET RegistrationCompleted = 'Y'
-                        WHERE UserId = @UserId AND RegistrationCompleted IS NULL";
+                        WHERE UserId = @UserId AND RegistrationCompleted != 'Y'";
 
                     // Execute the update query
                     var rowsAffected = Context.Database.ExecuteSqlRaw(updateSql, new[]
