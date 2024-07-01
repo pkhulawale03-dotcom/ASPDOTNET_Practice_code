@@ -192,16 +192,23 @@ namespace CPositiveAPI.Controllers
         }
 
         [HttpPost("CancerTreatement")]
-        public IActionResult Post([FromBody] TreatementConduct model)
+        public IActionResult Post([FromBody] TreatmentRequest model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
                     var token = GenerateToken();
-                    AddUser(model);
-                    int userId = model.UserId;
-                    return Ok(new { StatusCode = 200,token = token, Message = "Treatement Details Added Sucessfully", UserId = userId, Data = model });
+                    foreach (var treatment in model.Treatments)
+                    {
+                        AddTreatment(new TreatementConduct
+                        {
+                            UserId = model.UserId,
+                            HospitalName = treatment.HospitalName,
+                            OncologistName = treatment.OncologistName
+                        });
+                    }
+                    return Ok(new { StatusCode = 200, token = token, Message = "Treatment Details Added Successfully" });
                 }
                 catch (Exception ex)
                 {
@@ -211,31 +218,30 @@ namespace CPositiveAPI.Controllers
             return BadRequest(ModelState);
         }
 
-        private void AddUser(TreatementConduct treatmentConducted)
+        private void AddTreatment(TreatementConduct treatmentConducted)
         {
             using var transaction = Context.Database.BeginTransaction();
             try
-            {              
+            {
                 var Treatement = new TreatmentConductedAt
                 {
                     UserId = treatmentConducted.UserId,
-                    HospitalName= treatmentConducted.HospitalName,
-                    OncologistName= treatmentConducted.OncologistName,
+                    HospitalName = treatmentConducted.HospitalName,
+                    OncologistName = treatmentConducted.OncologistName,
                     Createdon = DateTime.Now,
                 };
                 Context.TreatmentConductedAt.Add(Treatement);
                 Context.SaveChanges();
 
                 var updateIsRegistrationCompletedSql = @"
-                    UPDATE IsRegistrationCompleted
-                    SET TreatmentConducted = 'Y'
-                    WHERE UserId = @UserId AND TreatmentConducted != 'Y'";
+            UPDATE IsRegistrationCompleted
+            SET TreatmentConducted = 'Y'
+            WHERE UserId = @UserId AND TreatmentConducted != 'Y'";
 
-                // Execute the update query
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
                 {
-                    new SqlParameter("@UserId", treatmentConducted.UserId)
-                });
+            new SqlParameter("@UserId", treatmentConducted.UserId)
+        });
 
                 transaction.Commit();
             }
@@ -245,11 +251,19 @@ namespace CPositiveAPI.Controllers
                 throw;
             }
         }
+
+        public class TreatmentRequest
+        {
+            public int UserId { get; set; }
+            public List<TreatementConduct> Treatments { get; set; }
+        }
+
         public class TreatementConduct
         {
             public int UserId { get; set; }
             public string HospitalName { get; set; }
             public string OncologistName { get; set; }
         }
+
     }
 }
