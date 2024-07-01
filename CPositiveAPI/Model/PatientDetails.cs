@@ -8,6 +8,8 @@ namespace CPositiveAPI.Model
         public int PatientId { get; set; }
         public int UserId { get; set; }
         public string PatientName { get; set; }
+        public string Gender { get; set; }
+        public string Age { get; set; }
         public string RelWithPatient {  get; set; }
         public DateTime Createdon {  get; set; }
     }

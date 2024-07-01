@@ -66,6 +66,8 @@ namespace CPositiveAPI.Controllers
                 {
                     UserId = patientdtls.UserId,
                     PatientName = patientdtls.PatientName,
+                    Age = patientdtls.Age,
+                    Gender = patientdtls.Gender,
                     RelWithPatient = patientdtls.RelWithPatient,
                     Createdon = DateTime.Now,
                 };
@@ -75,7 +77,7 @@ namespace CPositiveAPI.Controllers
                 var updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET PatientDetails = 'Y'
-                    WHERE UserId = @UserId AND PatientDetails IS NULL";
+                    WHERE UserId = @UserId AND PatientDetails != 'Y'";
 
                 // Execute the update query
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
@@ -96,6 +98,8 @@ namespace CPositiveAPI.Controllers
         {
             public int UserId { get; set; }
             public string PatientName { get; set; }
+            public string Age {  get; set; }
+            public string Gender {  get; set; }
             public string RelWithPatient { get; set; }
         }
 
@@ -226,6 +230,7 @@ namespace CPositiveAPI.Controllers
                 var occup = new OccupationalDetails
                 {
                     UserId = occupation.UserId,
+                    Qualification = occupation.Qualification,
                     Specilization = occupation.Specilization,
                     Experties = occupation.Experties,
                     Experience = occupation.Experience,                    
@@ -257,6 +262,7 @@ namespace CPositiveAPI.Controllers
         public class Occupation
         {
             public int UserId { get; set; }
+            public string Qualification {  get; set; }
             public string Specilization { get; set; }
             public string Experties { get; set; }
             public string Experience { get; set; }
