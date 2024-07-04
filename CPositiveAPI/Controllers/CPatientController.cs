@@ -292,12 +292,15 @@ namespace CPositiveAPI.Controllers
             return Ok(new { StatusCode = 200, Data = countries });
         }
 
-       
+
         [HttpGet("states/{countryId}")]
         public IActionResult GetStates(int countryId)
         {
-            // Fetch the states from the database
-            var states = Context.StateMaster.Where(s => s.CountryId == countryId).ToList();
+            // Fetch the states from the database ordered alphabetically by name
+            var states = Context.StateMaster
+                              .Where(s => s.CountryId == countryId)
+                              .OrderBy(s => s.statename)  // Order by state name
+                              .ToList();
 
             // Use the name of the action method to generate the data property name
             var actionName = ControllerContext.ActionDescriptor.ActionName;
@@ -310,7 +313,6 @@ namespace CPositiveAPI.Controllers
 
             return Ok(responseObject);
         }
-
 
 
         [HttpGet("districts/{stateId}")]
