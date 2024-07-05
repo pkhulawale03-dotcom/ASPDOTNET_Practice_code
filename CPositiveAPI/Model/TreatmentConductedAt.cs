@@ -7,8 +7,8 @@ namespace CPositiveAPI.Model
         [Key]
         public int TreatConductedAtId { get; set; }
         public int UserId {  get; set; }
-        public string HospitalName { get; set; }
-        public string OncologistName { get; set; }
+        public string? HospitalName { get; set; }
+        public string? OncologistName { get; set; }
         public DateTime Createdon {  get; set; }
     }
 }

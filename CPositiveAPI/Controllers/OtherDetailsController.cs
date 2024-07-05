@@ -2,11 +2,17 @@
 using CPositiveAPI.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using System.Dynamic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Text;
 using static CPositiveAPI.Controllers.OtherDetailsController;
 
@@ -17,6 +23,7 @@ namespace CPositiveAPI.Controllers
     public class OtherDetailsController : ControllerBase
     {
         public readonly ApplicationDbContext Context;
+
         private IConfiguration _configuration;
         public OtherDetailsController(ApplicationDbContext dbContext, IConfiguration configuration)
         {
@@ -47,7 +54,7 @@ namespace CPositiveAPI.Controllers
                     var token = GenerateToken();
                     AddPatient(model);
                     int userId = model.UserId;
-                    return Ok(new { StatusCode = 200,token = token, Message = "Patient Details Added Sucessfully",UserId = userId, Data = model });
+                    return Ok(new { StatusCode = 200, token = token, Message = "Patient Details Added Sucessfully", UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -98,12 +105,12 @@ namespace CPositiveAPI.Controllers
         {
             public int UserId { get; set; }
             public string PatientName { get; set; }
-            public int Age {  get; set; }
-            public string Gender {  get; set; }
+            public int Age { get; set; }
+            public string Gender { get; set; }
             public string RelWithPatient { get; set; }
         }
 
-        
+
         [HttpPost("OrganizationDetails")]
         public IActionResult OrganizationDetails(Organization model)
         {
@@ -114,7 +121,7 @@ namespace CPositiveAPI.Controllers
                     var token = GenerateToken();
                     AddOrganization(model);
                     int userId = model.UserId;
-                    return Ok(new { StatusCode = 200,token = token, Message = "Organization Details Added Sucessfully",UserId = userId, Data = model });
+                    return Ok(new { StatusCode = 200, token = token, Message = "Organization Details Added Sucessfully", UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -212,7 +219,7 @@ namespace CPositiveAPI.Controllers
                     var token = GenerateToken();
                     AddOccupation(model);
                     int userId = model.UserId;
-                    return Ok(new { StatusCode = 200,token = token, Message = "Occupation Details Added Sucessfully",UserId = userId, Data = model });
+                    return Ok(new { StatusCode = 200, token = token, Message = "Occupation Details Added Sucessfully", UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -233,7 +240,7 @@ namespace CPositiveAPI.Controllers
                     Qualification = occupation.Qualification,
                     Specilization = occupation.Specilization,
                     Experties = occupation.Experties,
-                    Experience = occupation.Experience,                    
+                    Experience = occupation.Experience,
                     Createdon = DateTime.Now,
                 };
                 Context.OccupationalDetails.Add(occup);
@@ -262,7 +269,7 @@ namespace CPositiveAPI.Controllers
         public class Occupation
         {
             public int UserId { get; set; }
-            public string Qualification {  get; set; }
+            public string Qualification { get; set; }
             public string Specilization { get; set; }
             public string Experties { get; set; }
             public string Experience { get; set; }
@@ -276,7 +283,7 @@ namespace CPositiveAPI.Controllers
                 return BadRequest("Invalid input data.");
             }
             var token = GenerateToken();
-            var userid=model.UserId;
+            var userid = model.UserId;
             using (var transaction = Context.Database.BeginTransaction())
             {
                 try
@@ -297,7 +304,7 @@ namespace CPositiveAPI.Controllers
                     transaction.Commit();
 
                     // Return success response
-                    return Ok(new { StatusCode = 200,token = token, Message = "Details updated successfully",UserId = userid, RowsAffected = rowsAffected });
+                    return Ok(new { StatusCode = 200, token = token, Message = "Details updated successfully", UserId = userid, RowsAffected = rowsAffected });
                 }
                 catch (Exception ex)
                 {
@@ -307,11 +314,83 @@ namespace CPositiveAPI.Controllers
                 }
             }
         }
-   
 
-    public class UpdateDetailsDto
-    {
-        public int UserId { get; set; }
+
+        public class UpdateDetailsDto
+        {
+            public int UserId { get; set; }
+        }
+
+        [HttpGet("PersonalDetails/{UserId}")]
+        public IActionResult GetPersonalDetails(int UserId)
+        {
+            var personalDetails = Context.PersonalDetails.ToList();
+
+            if (personalDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Personal Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", Data = personalDetails });
+        }
+        [HttpGet("CancerInfo/{UserId}")]
+        public IActionResult GetCancerInfoDetails(int UserId)
+        {
+            // Fetch the CancerInfoDetails of UserId from the database
+
+            var cancerInfoDetails = Context.CancerInfo.Where(d => d.UserId == UserId).ToList();
+            if (cancerInfoDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Cancer Info Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", Data = cancerInfoDetails });
+        }
+        [HttpGet("TreatmentConductedAt/{UserId}")]
+        public IActionResult GetTreatmentConductedAtDetails(int UserId)
+        {
+            // Fetch the TreatmentConductedAtDetails of UserId from the database
+            var treatmentConductedAtDetails = Context.TreatmentConductedAt.Where(d => d.UserId == UserId).ToList();
+
+            if (treatmentConductedAtDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Treatment Conducted At Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", Data = treatmentConductedAtDetails });
+        }
+        [HttpGet("PatientDetails/{UserId}")]
+        public IActionResult GetPatientDetails(int UserId)
+        {
+            // Fetch the PatientDetails of UserId from the database
+            var patientDetails = Context.PatientDetails.Where(d => d.UserId == UserId).ToList();
+
+            if (patientDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Patient Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", Data = patientDetails });
+        }
+        [HttpGet("OrganizationDetails/{UserId}")]
+        public IActionResult GetOrganizationDetails(int UserId)
+        {
+            // Fetch the PatientDetails of UserId from the database
+            var organizationDetails = Context.OrganizationDetails.Where(d => d.UserId == UserId).ToList();
+
+            if (organizationDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Organization Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", Data = organizationDetails });
+        }
+        [HttpGet("OccupationalDetails/{UserId}")]
+        public IActionResult GetOccupationalDetails(int UserId)
+        {
+            // Fetch the PatientDetails of UserId from the database
+            var occupationalDetails = Context.OccupationalDetails.Where(d => d.UserId == UserId).ToList();
+
+            if (occupationalDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Occupational Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", Data = occupationalDetails });
+        }
     }
-  }
 }
