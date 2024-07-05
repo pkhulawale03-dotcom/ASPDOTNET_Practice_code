@@ -219,18 +219,40 @@ namespace CPositiveAPI.Controllers
             public string Occupation { get; set; }
         }
 
-        
+
         [HttpPost("add-personal-details")]
-        public IActionResult AddPersonalDetails([FromBody] CreatePersonalDetlsDto model)
+        public async Task<IActionResult> AddPersonalDetails([FromForm] CreatePersonalDetlsDto model, IFormFile image)
         {
             if (ModelState.IsValid)
             {
-                using (var transaction = Context.Database.BeginTransaction())
+                using (var transaction = await Context.Database.BeginTransactionAsync())
                 {
                     try
                     {
                         var token = GenerateToken();
-                     
+
+                        // Save the image file if it exists
+                        string imagePath = null;
+                        if (image != null && image.Length > 0)
+                        {
+                            var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                            if (!Directory.Exists(uploadsFolderPath))
+                            {
+                                Directory.CreateDirectory(uploadsFolderPath);
+                            }
+
+                            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                            var filePath = Path.Combine(uploadsFolderPath, uniqueFileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await image.CopyToAsync(stream);
+                            }
+
+                            // Save relative path to the database
+                            imagePath = Path.Combine("images", uniqueFileName);
+                        }
+
                         // Create a new record for the PersonalDetls table
                         var personalDetls = new PersonalDetls
                         {
@@ -245,27 +267,28 @@ namespace CPositiveAPI.Controllers
                             Gender = model.Gender,
                             HighestQualification = model.HighestQualification,
                             Occupation = model.Occupation,
+                            ImagePath = imagePath,
                             Createdon = DateTime.Now
                         };
 
                         // Insert the new record into PersonalDetls
                         Context.PersonalDetails.Add(personalDetls);
-                        Context.SaveChanges();
+                        await Context.SaveChangesAsync();
 
                         // Construct the SQL query to update the IsRegistrationCompleted table
                         var updateIsRegistrationCompletedSql = @"
-                    UPDATE IsRegistrationCompleted
-                    SET Personaldetails = 'Y'
-                    WHERE UserId = @UserId AND Personaldetails != 'Y'";
+            UPDATE IsRegistrationCompleted
+            SET Personaldetails = 'Y'
+            WHERE UserId = @UserId AND Personaldetails != 'Y'";
 
                         // Execute the update query
-                        var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
+                        var rowsAffected = await Context.Database.ExecuteSqlRawAsync(updateIsRegistrationCompletedSql, new[]
                         {
                     new SqlParameter("@UserId", model.UserId)
                 });
 
                         // Commit the transaction
-                        transaction.Commit();
+                        await transaction.CommitAsync();
 
                         // Return success response
                         return Ok(new { StatusCode = 200, token = token, Message = "Personal Details Added Successfully", Data = personalDetls });
@@ -273,7 +296,7 @@ namespace CPositiveAPI.Controllers
                     catch (Exception ex)
                     {
                         // Rollback the transaction if there is an error
-                        transaction.Rollback();
+                        await transaction.RollbackAsync();
                         return BadRequest(ex.Message);
                     }
                 }
@@ -281,8 +304,6 @@ namespace CPositiveAPI.Controllers
 
             return BadRequest(ModelState);
         }
-
-
 
 
         [HttpGet("countries")]
