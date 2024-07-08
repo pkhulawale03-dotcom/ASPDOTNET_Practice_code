@@ -324,6 +324,8 @@ namespace CPositiveAPI.Controllers
         [HttpGet("PersonalDetails/{UserId}")]
         public IActionResult GetPersonalDetails(int UserId)
         {
+            // Fetch the PersonalDetails of UserId from the database
+
             var personalDetails = Context.PersonalDetails.ToList();
 
             if (personalDetails.Count == 0)
@@ -371,7 +373,8 @@ namespace CPositiveAPI.Controllers
         [HttpGet("OrganizationDetails/{UserId}")]
         public IActionResult GetOrganizationDetails(int UserId)
         {
-            // Fetch the PatientDetails of UserId from the database
+            // Fetch the OrganizationDetails of UserId from the database
+
             var organizationDetails = Context.OrganizationDetails.Where(d => d.UserId == UserId).ToList();
 
             if (organizationDetails.Count == 0)
@@ -383,7 +386,8 @@ namespace CPositiveAPI.Controllers
         [HttpGet("OccupationalDetails/{UserId}")]
         public IActionResult GetOccupationalDetails(int UserId)
         {
-            // Fetch the PatientDetails of UserId from the database
+            // Fetch the OccupationalDetails of UserId from the database
+
             var occupationalDetails = Context.OccupationalDetails.Where(d => d.UserId == UserId).ToList();
 
             if (occupationalDetails.Count == 0)
