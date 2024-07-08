@@ -326,7 +326,7 @@ namespace CPositiveAPI.Controllers
         {
             // Fetch the PersonalDetails of UserId from the database
 
-            var personalDetails = Context.PersonalDetails.ToList();
+            var personalDetails = Context.PersonalDetails.Where(d => d.UserId == UserId).ToList();
 
             if (personalDetails.Count == 0)
             {
