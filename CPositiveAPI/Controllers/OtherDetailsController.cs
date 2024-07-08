@@ -327,12 +327,24 @@ namespace CPositiveAPI.Controllers
             // Fetch the PersonalDetails of UserId from the database
 
             var personalDetails = Context.PersonalDetails.Where(d => d.UserId == UserId).ToList();
+            int CountryId = 0, StateId = 0, DistrictId = 0;
 
             if (personalDetails.Count == 0)
             {
                 return NotFound(new { StatusCode = 404, Message = "Personal Details Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", Data = personalDetails });
+            else
+            {
+                CountryId = personalDetails[0].CountryId;
+                StateId = personalDetails[0].StateId;
+                DistrictId = personalDetails[0].DistrictId;
+            }
+
+            var CountryName = Context.CountryMaster.Where(d => d.CountryId == CountryId).Select(T => T.CountryName).ToList();
+            var StateName = Context.StateMaster.Where(d => d.stateid == StateId).Select(T => T.statename).ToList();
+            var DistrictName = Context.DistrictMaster.Where(d => d.districtid == DistrictId).Select(T => T.districtname).ToList();
+
+            return Ok(new { StatusCode = 200, Message = "Success", Data = personalDetails, CountryName, StateName, DistrictName });
         }
         [HttpGet("CancerInfo/{UserId}")]
         public IActionResult GetCancerInfoDetails(int UserId)
@@ -340,11 +352,24 @@ namespace CPositiveAPI.Controllers
             // Fetch the CancerInfoDetails of UserId from the database
 
             var cancerInfoDetails = Context.CancerInfo.Where(d => d.UserId == UserId).ToList();
+            int CancerTypeId = 0, StageId = 0, GradeId = 0;
+
             if (cancerInfoDetails.Count == 0)
             {
                 return NotFound(new { StatusCode = 404, Message = "Cancer Info Details Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", Data = cancerInfoDetails });
+            else
+            {
+                CancerTypeId = cancerInfoDetails[0].CancertypeId;
+                StageId = cancerInfoDetails[0].StageId;
+                GradeId = cancerInfoDetails[0].GradeId;
+            }
+
+            var CancerType = Context.CancerTypesMaster.Where(d => d.CancerTypeId == CancerTypeId).Select(T => T.CancerType).ToList();
+            var Stage = Context.StageMaster.Where(d => d.stageId == StageId).Select(T => T.stagename).ToList();
+            var Grade = Context.GradeMaster.Where(d => d.GradeId == GradeId).Select(T => T.GradeName).ToList();
+
+            return Ok(new { StatusCode = 200, Message = "Success", Data = cancerInfoDetails, CancerType, Stage, Grade });
         }
         [HttpGet("TreatmentConductedAt/{UserId}")]
         public IActionResult GetTreatmentConductedAtDetails(int UserId)

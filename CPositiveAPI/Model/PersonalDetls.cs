@@ -20,6 +20,6 @@ namespace CPositiveAPI.Model
         public string? HighestQualification { get; set; }
         public string? Occupation { get; set; }
         public DateTime Createdon { get; set; }
-        public string? ImagePath {  get; set; }
+        public string? ImagePath { get; set; }
     }
 }
