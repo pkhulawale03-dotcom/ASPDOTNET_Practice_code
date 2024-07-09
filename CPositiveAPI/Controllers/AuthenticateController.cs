@@ -82,7 +82,8 @@ namespace CPositiveAPI.Controllers
                                    {
                                        u.UserId,
                                        u.Username,
-                                       u.Password,                                     
+                                       u.Password, 
+                                       u.EmailId,
                                        uc.CPositive,
                                        uc.Caregiver,
                                        uc.FamilyMember,
