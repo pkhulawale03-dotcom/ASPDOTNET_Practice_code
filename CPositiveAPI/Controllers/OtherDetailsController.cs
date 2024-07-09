@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -420,6 +421,21 @@ namespace CPositiveAPI.Controllers
                 return NotFound(new { StatusCode = 404, Message = "Occupational Details Not Found" });
             }
             return Ok(new { StatusCode = 200, Message = "Success", Data = occupationalDetails });
+        }
+        
+        [HttpGet("ProfileImage/{ImageUrl}")]
+        public IActionResult ProfileImage(String ImageUrl)
+        {
+            var FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot//images/" + ImageUrl);
+            var Provider = new FileExtensionContentTypeProvider();
+
+            if (!Provider.TryGetContentType(FilePath, out var contentType))
+            {
+                contentType = "application/ocet-stream";
+            }
+
+            var bytes = System.IO.File.ReadAllBytes(FilePath);
+            return File(bytes, contentType, Path.GetFileName(FilePath));
         }
     }
 }
