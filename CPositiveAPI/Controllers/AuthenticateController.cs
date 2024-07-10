@@ -81,6 +81,7 @@ namespace CPositiveAPI.Controllers
                                    select new
                                    {
                                        u.UserId,
+                                       u.Name,
                                        u.EmailId,
                                        u.Password,
                                        uc.CPositive,
