@@ -28,8 +28,8 @@ namespace CPositiveAPI.Controllers
             using var transaction = Context.Database.BeginTransaction();
             try
             {
-                var EmailId = Context.Users.Where(u => u.EmailId == user.EmailId)
-                            .Select(u => u.EmailId)
+                var EmailId = Context.Users.Where(u => u.Username == user.Username)
+                            .Select(u => u.Username)
                 .FirstOrDefault();
 
                 var Password = Context.Users.Where(u => u.Password == user.Password)
@@ -38,13 +38,13 @@ namespace CPositiveAPI.Controllers
 
                 if (EmailId != null && Password != null)
                 {
-                    var UserId = Context.Users.Where(u => u.EmailId == EmailId && u.Password == Password)
+                    var UserId = Context.Users.Where(u => u.Username == EmailId && u.Password == Password)
                                 .Select(u => u.UserId)
-                                .FirstOrDefault();
+                                .FirstOrDefault();                 
 
                     return true;
                 }
-
+               
                 return false;
             }
             catch (Exception)
@@ -77,13 +77,11 @@ namespace CPositiveAPI.Controllers
                                    join uc in Context.UserCategoryLinking on u.UserId equals uc.UserId
                                    join rc in Context.IsRegistrationCompleted on u.UserId equals rc.UserId into rcGroup
                                    from rc in rcGroup.DefaultIfEmpty()
-                                   where u.EmailId == loginRequest.EmailId && u.Password == loginRequest.Password
+                                   where u.Username == loginRequest.Username && u.Password == loginRequest.Password
                                    select new
                                    {
                                        u.UserId,
-                                       u.Name,
                                        u.EmailId,
-                                       u.Password,
                                        uc.CPositive,
                                        uc.Caregiver,
                                        uc.FamilyMember,
@@ -115,7 +113,7 @@ namespace CPositiveAPI.Controllers
 
         public class Login
         {
-            public string EmailId { get; set; }
+            public string Username { get; set; }
             public string Password { get; set; }
         }
 

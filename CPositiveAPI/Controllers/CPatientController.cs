@@ -32,10 +32,10 @@ namespace CPositiveAPI.Controllers
         {
             _configuration = configuration;
 
-            Context = dbContext;
+            Context = dbContext;            
         }
 
-
+       
         [HttpGet]
         [Route("GetCategory")]
         public IActionResult GetCategory()
@@ -55,7 +55,7 @@ namespace CPositiveAPI.Controllers
             }
         }
 
-
+       
         [HttpGet("check-username")]
         public IActionResult CheckUsernameExists([FromQuery] string username)
         {
@@ -67,12 +67,12 @@ namespace CPositiveAPI.Controllers
             bool exists = Context.Users.Any(u => u.Username == username);
             if (exists)
             {
-                return Ok(new { StatusCode = 200, Message = "Username exists", Data = username });
+                return Ok(new { StatusCode = 200, Message = "Username exists", Data=username });
             }
-            return Ok(new { StatusCode = 200, Data = username });
+            return Ok(new { StatusCode = 200, Message = "Username is available", Data = username });
         }
 
-
+        
         [HttpGet("check-mobileno")]
         public IActionResult CheckMobilenoExists([FromQuery] string mobileno)
         {
@@ -86,7 +86,7 @@ namespace CPositiveAPI.Controllers
             {
                 return Ok(new { StatusCode = 200, Message = "Mobile number exists", Data = mobileno });
             }
-            return Ok(new { StatusCode = 200, Data = mobileno });
+            return Ok(new { StatusCode = 200, Message = "Mobile number is available", Data = mobileno });
         }
 
         private string GenerateToken()
@@ -108,7 +108,7 @@ namespace CPositiveAPI.Controllers
             {
                 try
                 {
-                    // AddUser(model);
+                   // AddUser(model);
                     var token = GenerateToken();
                     var userId = AddUser(model); // Get the generated UserId
                     return Ok(new { StatusCode = 200, token = token, Message = "User Added Successfully", UserId = userId, Data = model });
@@ -130,7 +130,7 @@ namespace CPositiveAPI.Controllers
                 var userLogin = new Users
                 {
                     UserId = newUser.userId,
-                    Name = newUser.Name,
+                    Username = newUser.Username,
                     Password = newUser.Password,
                     ConfirmPassword = newUser.ConfirmPassword,
                     EmailId = newUser.EmailId,
@@ -139,7 +139,7 @@ namespace CPositiveAPI.Controllers
                 };
                 Context.Users.Add(userLogin);
                 Context.SaveChanges(); // Save to generate the UserId
-
+               
                 // Retrieve the newly generated UserId
                 var userId = userLogin.UserId;
                 // Create and add the user category link
@@ -189,7 +189,7 @@ namespace CPositiveAPI.Controllers
         public class CreateUserDto
         {
             public int userId { get; set; }
-            public string Name { get; set; }
+            public string Username { get; set; }
             public string Password { get; set; }
             public string ConfirmPassword { get; set; }
             public string EmailId { get; set; }
@@ -201,7 +201,7 @@ namespace CPositiveAPI.Controllers
             public string IsFamilyMember { get; set; }
             public string IsVolunteer { get; set; }
             public string IsHealthcareProfessional { get; set; }
-            public string IsMentalHealthProfessional { get; set; }
+            public string IsMentalHealthProfessional { get; set; }          
         }
 
         public class CreatePersonalDetlsDto
