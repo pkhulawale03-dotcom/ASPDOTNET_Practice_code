@@ -84,9 +84,9 @@ namespace CPositiveAPI.Controllers
             bool exists = Context.Users.Any(u => u.Mobileno == mobileno);
             if (exists)
             {
-                return Ok(new { StatusCode = 200, Message = "Mobile number exists", Data = mobileno });
+                return Ok(new { StatusCode = 200,  Data = mobileno });
             }
-            return Ok(new { StatusCode = 200, Message = "Mobile number is available", Data = mobileno });
+            return Ok(new { StatusCode = 200,  Data = mobileno });
         }
 
         private string GenerateToken()
@@ -130,7 +130,6 @@ namespace CPositiveAPI.Controllers
                 var userLogin = new Users
                 {
                     UserId = newUser.userId,
-                    Username = newUser.Username,
                     Password = newUser.Password,
                     ConfirmPassword = newUser.ConfirmPassword,
                     EmailId = newUser.EmailId,
@@ -189,7 +188,7 @@ namespace CPositiveAPI.Controllers
         public class CreateUserDto
         {
             public int userId { get; set; }
-            public string Username { get; set; }
+            public string? Username { get; set; }
             public string Password { get; set; }
             public string ConfirmPassword { get; set; }
             public string EmailId { get; set; }
