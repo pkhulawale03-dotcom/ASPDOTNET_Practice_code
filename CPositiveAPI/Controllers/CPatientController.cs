@@ -32,10 +32,10 @@ namespace CPositiveAPI.Controllers
         {
             _configuration = configuration;
 
-            Context = dbContext;            
+            Context = dbContext;
         }
 
-       
+
         [HttpGet]
         [Route("GetCategory")]
         public IActionResult GetCategory()
@@ -55,7 +55,7 @@ namespace CPositiveAPI.Controllers
             }
         }
 
-       
+
         [HttpGet("check-username")]
         public IActionResult CheckUsernameExists([FromQuery] string username)
         {
@@ -67,12 +67,12 @@ namespace CPositiveAPI.Controllers
             bool exists = Context.Users.Any(u => u.Username == username);
             if (exists)
             {
-                return Ok(new { StatusCode = 200, Message = "Username exists", Data=username });
+                return Ok(new { StatusCode = 200, Message = "Username exists", Data = username });
             }
             return Ok(new { StatusCode = 200, Message = "Username is available", Data = username });
         }
 
-        
+
         [HttpGet("check-mobileno")]
         public IActionResult CheckMobilenoExists([FromQuery] string mobileno)
         {
@@ -108,7 +108,7 @@ namespace CPositiveAPI.Controllers
             {
                 try
                 {
-                   // AddUser(model);
+                    // AddUser(model);
                     var token = GenerateToken();
                     var userId = AddUser(model); // Get the generated UserId
                     return Ok(new { StatusCode = 200, token = token, Message = "User Added Successfully", UserId = userId, Data = model });
@@ -139,7 +139,7 @@ namespace CPositiveAPI.Controllers
                 };
                 Context.Users.Add(userLogin);
                 Context.SaveChanges(); // Save to generate the UserId
-               
+
                 // Retrieve the newly generated UserId
                 var userId = userLogin.UserId;
                 // Create and add the user category link
@@ -201,27 +201,27 @@ namespace CPositiveAPI.Controllers
             public string IsFamilyMember { get; set; }
             public string IsVolunteer { get; set; }
             public string IsHealthcareProfessional { get; set; }
-            public string IsMentalHealthProfessional { get; set; }          
+            public string IsMentalHealthProfessional { get; set; }
         }
 
         public class CreatePersonalDetlsDto
         {
             public int UserId { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public int CountryId { get; set; }
             public int StateId { get; set; }
             public int DistrictId { get; set; }
-            public string Address { get; set; }
+            public string? Address { get; set; }
             public string Pincode { get; set; }
             public int Age { get; set; }
             public string Gender { get; set; }
-            public string HighestQualification { get; set; }
-            public string Occupation { get; set; }
+            public string? HighestQualification { get; set; }
+            public string? Occupation { get; set; }
         }
 
 
         [HttpPost("add-personal-details")]
-        public async Task<IActionResult> AddPersonalDetails([FromForm] CreatePersonalDetlsDto model, IFormFile image)
+        public async Task<IActionResult> AddPersonalDetails([FromForm] CreatePersonalDetlsDto model, IFormFile? image)
         {
             if (ModelState.IsValid)
             {
@@ -261,13 +261,13 @@ namespace CPositiveAPI.Controllers
                             CountryId = model.CountryId,
                             StateId = model.StateId,
                             DistrictId = model.DistrictId,
-                            Address = model.Address,
+                            Address = model.Address ?? string.Empty,
                             Pincode = model.Pincode,
                             Age = model.Age,
                             Gender = model.Gender,
-                            HighestQualification = model.HighestQualification,
-                            Occupation = model.Occupation,
-                            ImagePath = imagePath,
+                            HighestQualification = model.HighestQualification ?? string.Empty,
+                            Occupation = model.Occupation ?? string.Empty,
+                            ImagePath = imagePath ?? string.Empty,
                             Createdon = DateTime.Now
                         };
 
