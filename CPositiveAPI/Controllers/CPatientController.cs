@@ -130,6 +130,7 @@ namespace CPositiveAPI.Controllers
                 var userLogin = new Users
                 {
                     UserId = newUser.userId,
+                    Name=newUser.Name,
                     Password = newUser.Password,
                     ConfirmPassword = newUser.ConfirmPassword,
                     EmailId = newUser.EmailId,
@@ -188,6 +189,7 @@ namespace CPositiveAPI.Controllers
         public class CreateUserDto
         {
             public int userId { get; set; }
+            public string? Name { get; set; }
             public string? Username { get; set; }
             public string Password { get; set; }
             public string ConfirmPassword { get; set; }
