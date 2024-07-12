@@ -40,11 +40,11 @@ namespace CPositiveAPI.Controllers
                 {
                     var UserId = Context.Users.Where(u => u.EmailId == EmailId && u.Password == Password)
                                 .Select(u => u.UserId)
-                                .FirstOrDefault();                 
+                                .FirstOrDefault();
 
                     return true;
                 }
-               
+
                 return false;
             }
             catch (Exception)
@@ -90,12 +90,18 @@ namespace CPositiveAPI.Controllers
                                        uc.HealthcareProfessional,
                                        uc.MentalHealthProfessional,
                                        rc.Personaldetails,
-                                       rc.CancerInfo,
-                                       rc.TreatmentConducted,
-                                       rc.PatientDetails,
                                        rc.OrganizationalDetails,
-                                       rc.OccupationalDetails,
-                                       rc.RegistrationCompleted
+                                       rc.RegistrationCompleted,
+                                       rc.CpatientCancerInfo,
+                                       rc.CaregiverCancerInfo,
+                                       rc.FamilyMemberCancerInfo,
+                                       rc.CpatientTreatmentConducted,
+                                       rc.CaregiverTreatmentConducted,
+                                       rc.FamilyMemberTreatmentConducted,
+                                       rc.CaregiverPatientDetail,
+                                       rc.FamilyMemberPatientDetail,
+                                       rc.HealthcareOccupationalDetails,
+                                       rc.MentalHealthOccupationalDetails
                                    }).FirstOrDefault();
 
             if (userWithDetails != null)

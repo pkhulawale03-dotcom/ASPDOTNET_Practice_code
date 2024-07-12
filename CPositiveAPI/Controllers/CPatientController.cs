@@ -159,13 +159,20 @@ namespace CPositiveAPI.Controllers
                 var isRegistrationCompleted = new IsRegistrationCompleted
                 {
                     UserId = userId,
-                    Personaldetails = "N",
-                    CancerInfo = "N",
-                    TreatmentConducted = "N",
-                    PatientDetails = "N",
+                    Personaldetails = "N",                  
                     OrganizationalDetails = "N",
-                    OccupationalDetails = "N",
+                    CpatientCancerInfo = "N",
+                    CaregiverCancerInfo = "N",
+                    FamilyMemberCancerInfo = "N",
+                    CpatientTreatmentConducted = "N",
+                    CaregiverTreatmentConducted = "N",
+                    FamilyMemberTreatmentConducted = "N",
+                    CaregiverPatientDetail = "N",
+                    FamilyMemberPatientDetail = "N",
+                    HealthcareOccupationalDetails = "N",
+                    MentalHealthOccupationalDetails = "N",
                     RegistrationCompleted = "N",
+
                     Createdon = DateTime.Now,
                 };
                 Context.IsRegistrationCompleted.Add(isRegistrationCompleted);

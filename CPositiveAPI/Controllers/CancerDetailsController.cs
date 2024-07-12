@@ -148,21 +148,21 @@ namespace CPositiveAPI.Controllers
                     updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET CpatientCancerInfo = 'Y'
-                    WHERE UserId = @UserId AND CpatientCancerInfo != 'Y'";
+                    WHERE UserId = @UserId";
                 }
                 else if (cancerdtls.Category == "Caregiver")
                 {
                     updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET CaregiverCancerInfo = 'Y'
-                    WHERE UserId = @UserId AND CaregiverCancerInfo != 'Y'";
+                    WHERE UserId = @UserId";
                 }
                 else if (cancerdtls.Category == "FamilyMember")
                 {
                     updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET FamilyMemberCancerInfo = 'Y'
-                    WHERE UserId = @UserId AND FamilyMemberCancerInfo != 'Y'";
+                    WHERE UserId = @UserId";
                 }
 
                 // Execute the update query

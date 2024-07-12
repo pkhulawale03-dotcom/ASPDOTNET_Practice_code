@@ -90,14 +90,14 @@ namespace CPositiveAPI.Controllers
                     updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET CaregiverPatientDetail = 'Y'
-                    WHERE UserId = @UserId AND CaregiverPatientDetail != 'Y'";
+                    WHERE UserId = @UserId ";
                 }
                 else if (patientdtls.Category == "FamilyMember")
                 {
                     updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET FamilyMemberPatientDetail = 'Y'
-                    WHERE UserId = @UserId AND FamilyMemberPatientDetail != 'Y'";
+                    WHERE UserId = @UserId";
                 }
 
                 // Execute the update query
@@ -269,14 +269,14 @@ namespace CPositiveAPI.Controllers
                     updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET HealthcareOccupationalDetails = 'Y'
-                    WHERE UserId = @UserId AND HealthcareOccupationalDetails != 'Y'";
+                    WHERE UserId = @UserId";
                 }
                 else if (occupation.Category == "MentalHealthProfessional")
                 {
                     updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
                     SET MentalHealthOccupationalDetails = 'Y'
-                    WHERE UserId = @UserId AND MentalHealthOccupationalDetails != 'Y'";
+                    WHERE UserId = @UserId";
                 }
 
                 // Execute the update query
