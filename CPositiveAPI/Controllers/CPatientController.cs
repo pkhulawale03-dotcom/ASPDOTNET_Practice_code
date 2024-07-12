@@ -84,9 +84,9 @@ namespace CPositiveAPI.Controllers
             bool exists = Context.Users.Any(u => u.Mobileno == mobileno);
             if (exists)
             {
-                return Ok(new { StatusCode = 200,  Data = mobileno });
+                return Ok(new { StatusCode = 200, Message = "Mobile number is already Exits !", Data = mobileno });
             }
-            return Ok(new { StatusCode = 200,  Data = mobileno });
+            return Ok(new { StatusCode = 200, Data = mobileno });
         }
 
         private string GenerateToken()
@@ -353,6 +353,21 @@ namespace CPositiveAPI.Controllers
             responseObject.Add(dataPropertyName, districts); // Use the generated name
 
             return Ok(responseObject);
+        }
+        [HttpGet("check-EmailId")]
+        public IActionResult CheckEmailIdExists([FromQuery] string emailId)
+        {
+            if (string.IsNullOrEmpty(emailId))
+            {
+                return BadRequest(new { StatusCode = 400, Message = "EmailId is required" });
+            }
+
+            bool exists = Context.Users.Any(u => u.EmailId == emailId);
+            if (exists)
+            {
+                return Ok(new { StatusCode = 200, Message = "EmailId already exists", Data = emailId });
+            }
+            return Ok(new { StatusCode = 200, Data = emailId });
         }
     }
 }
