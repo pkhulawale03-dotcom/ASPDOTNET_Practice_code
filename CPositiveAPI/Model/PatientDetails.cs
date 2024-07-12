@@ -12,5 +12,6 @@ namespace CPositiveAPI.Model
         public int Age { get; set; }
         public string? RelWithPatient {  get; set; }
         public DateTime Createdon {  get; set; }
+        public string? Category {  get; set; }
     }
 }

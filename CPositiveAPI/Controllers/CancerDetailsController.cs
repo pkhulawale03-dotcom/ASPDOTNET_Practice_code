@@ -25,7 +25,7 @@ namespace CPositiveAPI.Controllers
             _configuration = configuration;
         }
 
-       
+
         [HttpGet("CancerName")]
         public IActionResult GetCancerName()
         {
@@ -40,11 +40,11 @@ namespace CPositiveAPI.Controllers
             responseObject.Add("StatusCode", 200);
             responseObject.Add(dataPropertyName, cancername); // Use the generated name
 
-            return Ok(responseObject);          
+            return Ok(responseObject);
 
         }
 
-        
+
         [HttpGet("CancerType")]
         public IActionResult GetCancerType()
         {
@@ -61,7 +61,7 @@ namespace CPositiveAPI.Controllers
             return Ok(responseObject);
         }
 
-       
+
         [HttpGet("CancerGrades")]
         public IActionResult GetCancerGrades()
         {
@@ -77,7 +77,7 @@ namespace CPositiveAPI.Controllers
             return Ok(responseObject);
         }
 
-       
+
         [HttpGet("CancerStages")]
         public IActionResult GetCancerStages()
         {
@@ -93,8 +93,8 @@ namespace CPositiveAPI.Controllers
             return Ok(responseObject);
         }
 
-       
-        [HttpPost("CancerDetails")]      
+
+        [HttpPost("CancerDetails")]
         public IActionResult AddCancerDetails([FromBody] CreateCancerDetails model)
         {
             if (ModelState.IsValid)
@@ -104,7 +104,7 @@ namespace CPositiveAPI.Controllers
                     var token = GenerateToken();
                     AddDetails(model);
                     int userId = model.UserId;
-                    return Ok(new { StatusCode = 200,token = token, Message = "Cancer Details Added Successfully",UserId = userId, Data = model });
+                    return Ok(new { StatusCode = 200, token = token, Message = "Cancer Details Added Successfully", UserId = userId, Data = model });
                 }
                 catch (Exception ex)
                 {
@@ -118,9 +118,9 @@ namespace CPositiveAPI.Controllers
         {
             using var transaction = Context.Database.BeginTransaction();
             try
-            {                            
+            {
                 var Cancerdtls = new CancerInfo
-                {                   
+                {
                     UserId = cancerdtls.UserId,
                     CancertypeId = cancerdtls.CancertypeId,
                     CancerNameId = cancerdtls.CancerNameId,
@@ -135,22 +135,41 @@ namespace CPositiveAPI.Controllers
                     IsTargetedTherapy = cancerdtls.IsTargetedTherapy,
                     IsPallitiveCare = cancerdtls.IsPallitiveCare,
                     IsRemission = cancerdtls.IsRemission,
-                    Createdon = DateTime.Now
+                    Createdon = DateTime.Now,
+                    Category = cancerdtls.Category,
                 };
 
                 Context.CancerInfo.Add(Cancerdtls);
                 Context.SaveChanges();
 
-                var updateIsRegistrationCompletedSql = @"
+                var updateIsRegistrationCompletedSql = String.Empty;
+                if (cancerdtls.Category == "Cpatient")
+                {
+                    updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
-                    SET CancerInfo = 'Y'
-                    WHERE UserId = @UserId AND CancerInfo != 'Y'";
+                    SET CpatientCancerInfo = 'Y'
+                    WHERE UserId = @UserId AND CpatientCancerInfo != 'Y'";
+                }
+                else if (cancerdtls.Category == "Caregiver")
+                {
+                    updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET CaregiverCancerInfo = 'Y'
+                    WHERE UserId = @UserId AND CaregiverCancerInfo != 'Y'";
+                }
+                else if (cancerdtls.Category == "FamilyMember")
+                {
+                    updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET FamilyMemberCancerInfo = 'Y'
+                    WHERE UserId = @UserId AND FamilyMemberCancerInfo != 'Y'";
+                }
 
                 // Execute the update query
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
                 {
                     new SqlParameter("@UserId", cancerdtls.UserId)
-                });            
+                });
 
                 transaction.Commit();
             }
@@ -162,7 +181,7 @@ namespace CPositiveAPI.Controllers
         }
 
         public class CreateCancerDetails
-        {           
+        {
             public int UserId { get; set; }
             public int CancertypeId { get; set; }
             public int CancerNameId { get; set; }
@@ -177,6 +196,7 @@ namespace CPositiveAPI.Controllers
             public string IsTargetedTherapy { get; set; }
             public string IsPallitiveCare { get; set; }
             public string IsRemission { get; set; }
+            public string Category { get; set; }
         }
 
         private string GenerateToken()
@@ -205,7 +225,8 @@ namespace CPositiveAPI.Controllers
                         {
                             UserId = model.UserId,
                             HospitalName = treatment.HospitalName,
-                            OncologistName = treatment.OncologistName
+                            OncologistName = treatment.OncologistName,
+                            Category = treatment.Category,
                         });
                     }
                     return Ok(new { StatusCode = 200, token = token, Message = "Treatment Details Added Successfully" });
@@ -229,14 +250,35 @@ namespace CPositiveAPI.Controllers
                     HospitalName = treatmentConducted.HospitalName,
                     OncologistName = treatmentConducted.OncologistName,
                     Createdon = DateTime.Now,
+                    Category = treatmentConducted.Category,
                 };
                 Context.TreatmentConductedAt.Add(Treatement);
                 Context.SaveChanges();
 
-                var updateIsRegistrationCompletedSql = @"
-            UPDATE IsRegistrationCompleted
-            SET TreatmentConducted = 'Y'
-            WHERE UserId = @UserId AND TreatmentConducted != 'Y'";
+                var updateIsRegistrationCompletedSql = String.Empty;
+
+                if (treatmentConducted.Category == "Cpatient")
+                {
+                    updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET CpatientTreatmentConducted = 'Y'
+                    WHERE UserId = @UserId AND CpatientTreatmentConducted != 'Y'";
+                }
+                else if (treatmentConducted.Category == "Caregiver")
+                {
+                    updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET CaregiverTreatmentConducted = 'Y'
+                    WHERE UserId = @UserId AND CaregiverTreatmentConducted != 'Y'";
+                }
+                else if (treatmentConducted.Category == "FamilyMember")
+                {
+                    updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET FamilyMemberTreatmentConducted = 'Y'
+                    WHERE UserId = @UserId AND FamilyMemberTreatmentConducted != 'Y'";
+                }
+
 
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
                 {
@@ -263,6 +305,7 @@ namespace CPositiveAPI.Controllers
             public int UserId { get; set; }
             public string HospitalName { get; set; }
             public string OncologistName { get; set; }
+            public string Category { get; set; }
         }
 
     }

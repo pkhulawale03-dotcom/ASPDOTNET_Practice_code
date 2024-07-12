@@ -78,14 +78,27 @@ namespace CPositiveAPI.Controllers
                     Gender = patientdtls.Gender,
                     RelWithPatient = patientdtls.RelWithPatient,
                     Createdon = DateTime.Now,
+                    Category = patientdtls.Category,
                 };
                 Context.PatientDetails.Add(patient);
                 Context.SaveChanges();
 
-                var updateIsRegistrationCompletedSql = @"
+                var updateIsRegistrationCompletedSql = String.Empty;
+
+                if (patientdtls.Category == "Caregiver")
+                {
+                    updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
-                    SET PatientDetails = 'Y'
-                    WHERE UserId = @UserId AND PatientDetails != 'Y'";
+                    SET CaregiverPatientDetail = 'Y'
+                    WHERE UserId = @UserId AND CaregiverPatientDetail != 'Y'";
+                }
+                else if (patientdtls.Category == "FamilyMember")
+                {
+                    updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET FamilyMemberPatientDetail = 'Y'
+                    WHERE UserId = @UserId AND FamilyMemberPatientDetail != 'Y'";
+                }
 
                 // Execute the update query
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
@@ -109,6 +122,7 @@ namespace CPositiveAPI.Controllers
             public int Age { get; set; }
             public string Gender { get; set; }
             public string RelWithPatient { get; set; }
+            public string Category { get; set; }
         }
 
 
@@ -243,14 +257,27 @@ namespace CPositiveAPI.Controllers
                     Experties = occupation.Experties,
                     Experience = occupation.Experience,
                     Createdon = DateTime.Now,
+                    Category = occupation.Category,
                 };
                 Context.OccupationalDetails.Add(occup);
                 Context.SaveChanges();
 
-                var updateIsRegistrationCompletedSql = @"
+                var updateIsRegistrationCompletedSql = String.Empty;
+
+                if (occupation.Category == "HealthcareProfessional")
+                {
+                    updateIsRegistrationCompletedSql = @"
                     UPDATE IsRegistrationCompleted
-                    SET OccupationalDetails = 'Y'
-                    WHERE UserId = @UserId AND OccupationalDetails != 'Y'";
+                    SET HealthcareOccupationalDetails = 'Y'
+                    WHERE UserId = @UserId AND HealthcareOccupationalDetails != 'Y'";
+                }
+                else if (occupation.Category == "MentalHealthProfessional")
+                {
+                    updateIsRegistrationCompletedSql = @"
+                    UPDATE IsRegistrationCompleted
+                    SET MentalHealthOccupationalDetails = 'Y'
+                    WHERE UserId = @UserId AND MentalHealthOccupationalDetails != 'Y'";
+                }
 
                 // Execute the update query
                 var rowsAffected = Context.Database.ExecuteSqlRaw(updateIsRegistrationCompletedSql, new[]
@@ -274,6 +301,7 @@ namespace CPositiveAPI.Controllers
             public string Specilization { get; set; }
             public string Experties { get; set; }
             public string Experience { get; set; }
+            public string Category { get; set; }
         }
 
         [HttpPost("update-details")]
@@ -422,7 +450,7 @@ namespace CPositiveAPI.Controllers
             }
             return Ok(new { StatusCode = 200, Message = "Success", Data = occupationalDetails });
         }
-        
+
         [HttpGet("ProfileImage/{ImageUrl}")]
         public IActionResult ProfileImage(String ImageUrl)
         {

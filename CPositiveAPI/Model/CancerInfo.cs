@@ -21,5 +21,6 @@ namespace CPositiveAPI.Model
         public string? IsPallitiveCare { get; set; }
         public string? IsRemission { get; set; }
         public DateTime Createdon { get; set; }
+        public string Category { get; set; }
     }
 }

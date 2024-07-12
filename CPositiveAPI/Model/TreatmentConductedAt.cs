@@ -10,5 +10,6 @@ namespace CPositiveAPI.Model
         public string? HospitalName { get; set; }
         public string? OncologistName { get; set; }
         public DateTime Createdon {  get; set; }
+        public String? Category { get; set; }
     }
 }
