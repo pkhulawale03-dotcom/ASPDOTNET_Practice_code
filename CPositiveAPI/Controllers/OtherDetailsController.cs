@@ -465,5 +465,65 @@ namespace CPositiveAPI.Controllers
             var bytes = System.IO.File.ReadAllBytes(FilePath);
             return File(bytes, contentType, Path.GetFileName(FilePath));
         }
+        [HttpGet("UserCpatientCategoryDetails/{UserId}")]
+        public IActionResult GetUserCpatientCategoryDetails(int UserId)
+        {
+            var CancerInfo = Context.CancerInfo.Where(d => d.UserId == UserId && d.Category == "Cpatient").ToList();
+            var TreatmentConductedAt = Context.TreatmentConductedAt.Where(d => d.UserId == UserId && d.Category == "Cpatient").ToList();
+
+            if (CancerInfo.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Cpatient Category Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", CancerInfo, TreatmentConductedAt });
+        }
+        [HttpGet("UserCaregiveCategoryDetails/{UserId}")]
+        public IActionResult GetUserCaregiveCategoryDetails(int UserId)
+        {
+            var CancerInfo = Context.CancerInfo.Where(d => d.UserId == UserId && d.Category == "Caregiver").ToList();
+            var TreatmentConductedAt = Context.TreatmentConductedAt.Where(d => d.UserId == UserId && d.Category == "Caregiver").ToList();
+            var PatientDetails = Context.PatientDetails.Where(d => d.UserId == UserId && d.Category == "Caregiver").ToList();
+
+            if (CancerInfo.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Caregive Category Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", CancerInfo, TreatmentConductedAt, PatientDetails });
+        }
+        [HttpGet("UserFamilyMemberCategoryDetails/{UserId}")]
+        public IActionResult GetUserFamilyMemberCategoryDetails(int UserId)
+        {
+            var CancerInfo = Context.CancerInfo.Where(d => d.UserId == UserId && d.Category == "FamilyMember").ToList();
+            var TreatmentConductedAt = Context.TreatmentConductedAt.Where(d => d.UserId == UserId && d.Category == "FamilyMember").ToList();
+            var PatientDetails = Context.PatientDetails.Where(d => d.UserId == UserId && d.Category == "FamilyMember").ToList();
+
+            if (CancerInfo.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Family Member Category Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", CancerInfo, TreatmentConductedAt, PatientDetails });
+        }       
+        [HttpGet("UserHealthcareProfessionalCategoryDetails/{UserId}")]
+        public IActionResult GetUserHealthcareProfessionalCategoryDetails(int UserId)
+        {
+            var OccupationalDetails = Context.OccupationalDetails.Where(d => d.UserId == UserId && d.Category == "HealthcareProfessional").ToList();
+
+            if (OccupationalDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Healthcare Professional Category Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", OccupationalDetails });
+        }
+        [HttpGet("UserMentalHealthProfessionalCategoryDetails/{UserId}")]
+        public IActionResult GetUserMentalHealthProfessionalCategoryDetails(int UserId)
+        {
+            var OccupationalDetails = Context.OccupationalDetails.Where(d => d.UserId == UserId && d.Category == "MentalHealthProfessional").ToList();
+
+            if (OccupationalDetails.Count == 0)
+            {
+                return NotFound(new { StatusCode = 404, Message = "Mental Health Professional Category Details Not Found" });
+            }
+            return Ok(new { StatusCode = 200, Message = "Success", OccupationalDetails });
+        }
     }
 }
