@@ -430,12 +430,13 @@ namespace CPositiveAPI.Controllers
             // Fetch the OrganizationDetails of UserId from the database
 
             var organizationDetails = Context.OrganizationDetails.Where(d => d.UserId == UserId).ToList();
+            var AreaOfServiceDetails = Context.AreaofServiceMaster.Where(d => d.UserId == UserId).ToList();
 
             if (organizationDetails.Count == 0)
             {
                 return NotFound(new { StatusCode = 404, Message = "Organization Details Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", Data = organizationDetails });
+            return Ok(new { StatusCode = 200, Message = "Success", Data = organizationDetails, AreaOfServiceDetails });
         }
         [HttpGet("OccupationalDetails/{UserId}")]
         public IActionResult GetOccupationalDetails(int UserId)
@@ -470,12 +471,26 @@ namespace CPositiveAPI.Controllers
         {
             var CancerInfo = Context.CancerInfo.Where(d => d.UserId == UserId && d.Category == "Cpatient").ToList();
             var TreatmentConductedAt = Context.TreatmentConductedAt.Where(d => d.UserId == UserId && d.Category == "Cpatient").ToList();
+            int CancerTypeId = 0, CancerNameId = 0, StageId = 0, GradeId = 0;
 
             if (CancerInfo.Count == 0)
             {
                 return NotFound(new { StatusCode = 404, Message = "Cpatient Category Details Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", CancerInfo, TreatmentConductedAt });
+            else
+            {
+                CancerTypeId = CancerInfo[0].CancertypeId;
+                CancerNameId = CancerInfo[0].CancerNameId;
+                StageId = CancerInfo[0].StageId;
+                GradeId = CancerInfo[0].GradeId;
+            }
+
+            var CancerType = Context.CancerTypesMaster.Where(d => d.CancerTypeId == CancerTypeId).Select(T => T.CancerType).ToList();
+            var CancerName = Context.CancerNameMaster.Where(d => d.CancerNameId == CancerNameId).Select(T => T.CancerName).ToList();
+            var Stage = Context.StageMaster.Where(d => d.stageId == StageId).Select(T => T.stagename).ToList();
+            var Grade = Context.GradeMaster.Where(d => d.GradeId == GradeId).Select(T => T.GradeName).ToList();
+
+            return Ok(new { StatusCode = 200, Message = "Success", data = CancerInfo, CancerType, CancerName, Stage, Grade, TreatmentConductedAt });
         }
         [HttpGet("UserCaregiveCategoryDetails/{UserId}")]
         public IActionResult GetUserCaregiveCategoryDetails(int UserId)
@@ -483,12 +498,25 @@ namespace CPositiveAPI.Controllers
             var CancerInfo = Context.CancerInfo.Where(d => d.UserId == UserId && d.Category == "Caregiver").ToList();
             var TreatmentConductedAt = Context.TreatmentConductedAt.Where(d => d.UserId == UserId && d.Category == "Caregiver").ToList();
             var PatientDetails = Context.PatientDetails.Where(d => d.UserId == UserId && d.Category == "Caregiver").ToList();
+            int CancerTypeId = 0, CancerNameId = 0, StageId = 0, GradeId = 0;
 
             if (CancerInfo.Count == 0)
             {
                 return NotFound(new { StatusCode = 404, Message = "Caregive Category Details Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", CancerInfo, TreatmentConductedAt, PatientDetails });
+            else
+            {
+                CancerTypeId = CancerInfo[0].CancertypeId;
+                CancerNameId = CancerInfo[0].CancerNameId;
+                StageId = CancerInfo[0].StageId;
+                GradeId = CancerInfo[0].GradeId;
+            }
+            var CancerType = Context.CancerTypesMaster.Where(d => d.CancerTypeId == CancerTypeId).Select(T => T.CancerType).ToList();
+            var CancerName = Context.CancerNameMaster.Where(d => d.CancerNameId == CancerNameId).Select(T => T.CancerName).ToList();
+            var Stage = Context.StageMaster.Where(d => d.stageId == StageId).Select(T => T.stagename).ToList();
+            var Grade = Context.GradeMaster.Where(d => d.GradeId == GradeId).Select(T => T.GradeName).ToList();
+
+            return Ok(new { StatusCode = 200, Message = "Success", data = CancerInfo, CancerType, CancerName, Stage, Grade, TreatmentConductedAt, PatientDetails });
         }
         [HttpGet("UserFamilyMemberCategoryDetails/{UserId}")]
         public IActionResult GetUserFamilyMemberCategoryDetails(int UserId)
@@ -496,13 +524,26 @@ namespace CPositiveAPI.Controllers
             var CancerInfo = Context.CancerInfo.Where(d => d.UserId == UserId && d.Category == "FamilyMember").ToList();
             var TreatmentConductedAt = Context.TreatmentConductedAt.Where(d => d.UserId == UserId && d.Category == "FamilyMember").ToList();
             var PatientDetails = Context.PatientDetails.Where(d => d.UserId == UserId && d.Category == "FamilyMember").ToList();
+            int CancerTypeId = 0, CancerNameId = 0, StageId = 0, GradeId = 0;
 
             if (CancerInfo.Count == 0)
             {
                 return NotFound(new { StatusCode = 404, Message = "Family Member Category Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", CancerInfo, TreatmentConductedAt, PatientDetails });
-        }       
+            else
+            {
+                CancerTypeId = CancerInfo[0].CancertypeId;
+                CancerNameId = CancerInfo[0].CancerNameId;
+                StageId = CancerInfo[0].StageId;
+                GradeId = CancerInfo[0].GradeId;
+            }
+            var CancerType = Context.CancerTypesMaster.Where(d => d.CancerTypeId == CancerTypeId).Select(T => T.CancerType).ToList();
+            var CancerName = Context.CancerNameMaster.Where(d => d.CancerNameId == CancerNameId).Select(T => T.CancerName).ToList();
+            var Stage = Context.StageMaster.Where(d => d.stageId == StageId).Select(T => T.stagename).ToList();
+            var Grade = Context.GradeMaster.Where(d => d.GradeId == GradeId).Select(T => T.GradeName).ToList();
+
+            return Ok(new { StatusCode = 200, Message = "Success", data = CancerInfo, CancerType, CancerName, Stage, Grade, TreatmentConductedAt, PatientDetails });
+        }
         [HttpGet("UserHealthcareProfessionalCategoryDetails/{UserId}")]
         public IActionResult GetUserHealthcareProfessionalCategoryDetails(int UserId)
         {
@@ -512,7 +553,7 @@ namespace CPositiveAPI.Controllers
             {
                 return NotFound(new { StatusCode = 404, Message = "Healthcare Professional Category Details Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", OccupationalDetails });
+            return Ok(new { StatusCode = 200, Message = "Success", data = OccupationalDetails });
         }
         [HttpGet("UserMentalHealthProfessionalCategoryDetails/{UserId}")]
         public IActionResult GetUserMentalHealthProfessionalCategoryDetails(int UserId)
@@ -523,7 +564,7 @@ namespace CPositiveAPI.Controllers
             {
                 return NotFound(new { StatusCode = 404, Message = "Mental Health Professional Category Details Not Found" });
             }
-            return Ok(new { StatusCode = 200, Message = "Success", OccupationalDetails });
+            return Ok(new { StatusCode = 200, Message = "Success", data = OccupationalDetails });
         }
     }
 }
