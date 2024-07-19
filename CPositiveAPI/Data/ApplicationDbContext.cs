@@ -1,4 +1,5 @@
-﻿using CPositiveAPI.Model;
+﻿using CPositiveAPI.Controllers;
+using CPositiveAPI.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,5 +31,10 @@ namespace CPositiveAPI.Data
         public DbSet<AreaofServiceMaster> AreaofServiceMaster { get; set;}
         public DbSet<OccupationalDetails> OccupationalDetails { get;set; }
         public DbSet<IsRegistrationCompleted> IsRegistrationCompleted {  get; set; }
+        public DbSet<Discussion> Discussions { get; set; }
+        public DbSet<Topic> Topics { get; set; }
+
+      
+
     }
 }
