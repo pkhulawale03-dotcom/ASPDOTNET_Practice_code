@@ -75,25 +75,22 @@ namespace CPositiveAPI.Controllers
         }
 
         [HttpGet("GetProfileImageByUserId/{userId}")]
-        public IActionResult GetProfileImageByUserId(int userId)
+        public async Task<IActionResult> GetProfileImageByUserId(int userId)
         {
-            var user = Context.PersonalDetails.Find(userId); // Assuming your DbContext has a Users DbSet
-            if (user == null)
+            var user = await Context.PersonalDetails
+                                      .Where(u => u.UserId == userId)
+                                      .Select(u => new { u.ImagePath })
+                                      .FirstOrDefaultAsync();
+
+            if (user == null || string.IsNullOrEmpty(user.ImagePath))
             {
-                return NotFound("User not found.");
+                return NotFound("User or image not found.");
             }
 
-            var imageUrl = user.ImagePath; // Assuming 'ImagePath' is the property that holds the image URL
-            if (string.IsNullOrEmpty(imageUrl))
-            {
-                return NotFound("Image not found for the given user ID.");
-            }
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot//" + user.ImagePath);
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot//images" + imageUrl);
-            _logger.LogInformation($"Constructed file path: {filePath}");
             if (!System.IO.File.Exists(filePath))
             {
-                _logger.LogWarning($"File not found at path: {filePath}");
                 return NotFound("Image file not found.");
             }
 
