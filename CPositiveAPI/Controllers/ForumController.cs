@@ -1,8 +1,10 @@
 ﻿using CPositiveAPI.Data;
 using CPositiveAPI.Model;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.IO;
@@ -127,28 +129,52 @@ namespace CPositiveAPI.Controllers
         }
 
         [HttpGet("SearchTopics")]
-        public async Task<IActionResult> SearchTopics([FromQuery] string query)
+        public async Task<IActionResult> SearchTopics(string query)
         {
             if (string.IsNullOrEmpty(query))
             {
-                return BadRequest("Query parameter cannot be null or empty.");
+                return BadRequest("Query string is null or empty.");
             }
 
-            var topics = await Context.Topics
-                                        .Where(t => EF.Functions.Like(t.Content, $"%{query}%"))
-                                        .Select(t => new
-                                        {
-                                            t.Content,
-                                            t.UserId
-                                        })
-                                        .ToListAsync();
+            var topics = await (from t in Context.Topics
+                                join u in Context.Users on t.UserId equals u.UserId
+                                where t.Content.Contains(query)
+                                select new
+                                {
+                                    t.Id,
+                                    t.Content,
+                                    UserId = t.UserId,
+                                    Username = u.Username
+                                }).ToListAsync();
 
             if (topics == null || topics.Count == 0)
             {
-                return NotFound("No topics found matching the search criteria.");
+                return NotFound("No topics found matching the search query.");
             }
 
             return Ok(topics);
         }
+
+
+
+        //[HttpGet("Searchcommenttopics")]
+        //public async Task<IActionResult> GetUsernamesForTopic(int topicId)
+        //{
+        //    // Assuming 'Topics' is a DbSet in your DbContext
+        //    var userNames = await (from t in Context.Topics
+        //                           join u in Context.Users on t.UserId equals u.UserId
+        //                           where t.Id == topicId
+        //                           select u.Username)
+        //                           .Distinct() // Ensure usernames are unique
+        //                           .ToListAsync();
+
+        //    if (userNames == null || userNames.Count == 0)
+        //    {
+        //        return NotFound("No usernames found for the given topic ID.");
+        //    }
+
+        //    return Ok(userNames);
+        //}
+
     }
 }
