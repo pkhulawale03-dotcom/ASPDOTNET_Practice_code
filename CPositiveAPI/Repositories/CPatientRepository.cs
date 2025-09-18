@@ -1,21 +1,22 @@
 ﻿using CPositiveAPI.Data;
+using CPositiveAPI.Interfaces;
 using CPositiveAPI.Model;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CPositiveAPI.Repositories
 {
-    public class CPatientRepository
+    public class CPatientRepository : ICPatientRepository
     {
         private readonly ApplicationDbContext _context;
 
-        public CPatientRepository(ApplicationDbContext dbContext)
+        public CPatientRepository(ApplicationDbContext context)
         {
-            _context = dbContext;
+            _context = context;
         }
 
         public IEnumerable<UserCategoryMaster> GetCategories() =>
-           _context.UserCategoryMaster.ToList();
+            _context.UserCategoryMaster.ToList();
 
         public bool UsernameExists(string username) =>
             _context.Users.Any(u => u.Username == username);
@@ -25,6 +26,7 @@ namespace CPositiveAPI.Repositories
 
         public bool EmailExists(string emailId) =>
             _context.Users.Any(u => u.EmailId == emailId);
+
         public int AddUser(Users user, UserCategoryLink categoryLink, IsRegistrationCompleted registration)
         {
             using var transaction = _context.Database.BeginTransaction();
@@ -45,10 +47,10 @@ namespace CPositiveAPI.Repositories
 
                 return userId;
             }
-            catch (Exception ex)
+            catch
             {
                 transaction.Rollback();
-                throw ex;
+                throw;
             }
         }
 
@@ -83,6 +85,5 @@ namespace CPositiveAPI.Repositories
             _context.DistrictMaster
                 .Where(d => d.stateid == stateId)
                 .ToList();
-
     }
 }

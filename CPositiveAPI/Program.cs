@@ -1,4 +1,6 @@
 using CPositiveAPI.Data;
+using CPositiveAPI.Interfaces;
+using CPositiveAPI.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -36,6 +38,12 @@ builder.Services.AddCors(p => p.AddPolicy("corspolicy", builder =>
 }));
 
 var app = builder.Build();
+
+builder.Services.AddScoped<ICancerRepository, CancerDetailsRepository>();
+builder.Services.AddScoped<ITreatmentRepository, TreatmentRepository>();
+builder.Services.AddScoped<ICPatientRepository, CPatientRepository>();
+builder.Services.AddScoped<IForumRepository, ForumRepository>();
+builder.Services.AddScoped<IOtherDetailsRepository, OtherDetailsRepository>();
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

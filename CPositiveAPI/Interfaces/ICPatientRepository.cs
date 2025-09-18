@@ -6,13 +6,14 @@ namespace CPositiveAPI.Interfaces
     {
         IEnumerable<UserCategoryMaster> GetCategories();
         bool UsernameExists(string username);
-        bool MobileExists(string mobile);
-        bool EmailExists(string email);
+        bool MobileExists(string mobileno);
+        bool EmailExists(string emailId);
 
-        int AddUser(Users users,UserCategoryLink userCategoryLink,IsRegistrationCompleted isRegistration);
-        Task<PersonalDetls> GetPersonalDetlsAsync(PersonalDetls personalDetls);
+        int AddUser(Users user, UserCategoryLink categoryLink, IsRegistrationCompleted registration);
+        Task<PersonalDetls> AddPersonalDetailsAsync(PersonalDetls details);
+
         IEnumerable<CountryMaster> GetCountries();
-        IEnumerable<StateMaster> GetStates(int countryid);
-        IEnumerable<DistrictMaster> GetDistricts(int stateid);
+        IEnumerable<StateMaster> GetStates(int countryId);
+        IEnumerable<DistrictMaster> GetDistricts(int stateId);
     }
 }
