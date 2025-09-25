@@ -40,11 +40,18 @@ namespace CPositiveAPI.Controllers
         }
 
         [HttpPost("OrganizationDetails")]
-        public IActionResult AddOrganization([FromBody] OrganizationDetails org, [FromBody] AreaofServiceMaster area)
+        public IActionResult AddOrganization([FromBody] OrganizationRequestDto request)
         {
-            _repository.AddOrganization(org, area);
+            var org = request.Org;
+            var area = request.Area;
             return Ok(new { StatusCode = 200, Token = GenerateToken(), Message = "Organization Details Added Successfully", UserId = org.UserId });
         }
+        public class OrganizationRequestDto
+        {
+            public OrganizationDetails Org { get; set; }
+            public AreaofServiceMaster Area { get; set; }
+        }
+
 
         [HttpPost("OccupationDetails")]
         public IActionResult AddOccupation([FromBody] OccupationalDetails occ)

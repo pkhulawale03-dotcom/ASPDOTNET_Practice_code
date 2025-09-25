@@ -12,6 +12,27 @@ namespace CPositiveAPI.Data
             
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Discussion → User : Restrict cascade
+            modelBuilder.Entity<Discussion>()
+                .HasOne(d => d.User)
+                .WithMany() // if Users class doesn't have ICollection<Discussion>
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Discussion → Topic : Cascade delete
+            modelBuilder.Entity<Discussion>()
+                .HasOne(d => d.Topic)
+                .WithMany(t => t.Discussions)
+                .HasForeignKey(d => d.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+
+
 
         public DbSet<UserCategoryMaster> UserCategoryMaster { get; set; }
         public DbSet<Users> Users {  get; set; }

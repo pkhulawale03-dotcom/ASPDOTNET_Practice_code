@@ -83,7 +83,7 @@ namespace CPositiveAPI.Controllers
         public async Task<IActionResult> AddPersonalDetails([FromBody] PersonalDetls model)
         {
             var token = GenerateToken();
-            var savedDetails = await _repository.GetPersonalDetlsAsync(model);
+            var savedDetails = await _repository.AddPersonalDetailsAsync(model);
             return Ok(new { StatusCode = 200, Token = token, Message = "Personal Details Added Successfully", Data = savedDetails });
         }
 

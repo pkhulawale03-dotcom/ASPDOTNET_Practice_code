@@ -23,7 +23,7 @@ namespace CPositiveAPI.Repositories
                 _context.TreatmentConductedAt.Add(treatmentConducted);
                 _context.SaveChanges();
 
-                string updatesql = string.Empty;
+                string updatesql = null;
 
                 if (category == "CPatient")
                 {
@@ -44,10 +44,13 @@ namespace CPositiveAPI.Repositories
                                   WHERE UserId = @UserId AND FamilymemberTreatmentConducted != 'Y'";
                 }
 
-                _context.Database.ExecuteSqlRaw(updatesql, new[]
+                if (!string.IsNullOrEmpty(updatesql))
                 {
-                    new SqlParameter("UserId" ,treatmentConducted.UserId)
-                });
+                    _context.Database.ExecuteSqlRaw(updatesql, new[]
+                    {
+                new SqlParameter("@UserId", treatmentConducted.UserId) // added @ for safety
+            });
+                }
 
                 transaction.Commit();
             }

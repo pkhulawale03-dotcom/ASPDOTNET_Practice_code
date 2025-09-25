@@ -28,45 +28,50 @@ namespace CPositiveAPI.Repositories
             _context.StageMaster.ToList();
 
         public void AddCancerdetails(CancerInfo cancerInfo, string category)
-        { 
-            using var transaction= _context.Database.BeginTransaction();
+        {
+            using var transaction = _context.Database.BeginTransaction();
             try
             {
                 _context.CancerInfo.Add(cancerInfo);
                 _context.SaveChanges();
 
-                string updatesql = string.Empty;
+                string updatesql = null;
+
                 if (category == "Cpatient")
                 {
                     updatesql = @"UPDATE IsRegistrationCompleted
-                                  SET CpatientCancerInfo = 'Y'
-                                  WHERE UserId = @UserId";
+                          SET CpatientCancerInfo = 'Y'
+                          WHERE UserId = @UserId";
                 }
-                else if(category == "Caregiver")
+                else if (category == "Caregiver")
                 {
                     updatesql = @"UPDATE IsRegistrationCompleted
-                                  SET CaregiverCancerInfo = 'Y'
-                                  WHERE UserId = @UserId";
+                          SET CaregiverCancerInfo = 'Y'
+                          WHERE UserId = @UserId";
                 }
                 else if (category == "Familymember")
                 {
                     updatesql = @"UPDATE IsRegistrationCompleted
-                                  SET FamilymemberCancerInfo = 'Y'
-                                  WHERE UserId = @UserId";
+                          SET FamilymemberCancerInfo = 'Y'
+                          WHERE UserId = @UserId";
                 }
 
-                _context.Database.ExecuteSqlRaw(updatesql, new[]
+                if (!string.IsNullOrEmpty(updatesql))
                 {
-                    new SqlParameter("UserId" ,cancerInfo.UserId)
-                });
+                    _context.Database.ExecuteSqlRaw(updatesql, new[]
+                    {
+                new SqlParameter("@UserId", cancerInfo.UserId) // added @ for safety
+            });
+                }
 
                 transaction.Commit();
             }
-            catch (Exception ex) 
-            { 
-              transaction.Rollback();
-              throw ex;
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw;
             }
-        }       
+        }
+
     }
 }

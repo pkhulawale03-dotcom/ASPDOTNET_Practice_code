@@ -19,14 +19,14 @@ namespace CPositiveAPI.Repositories
         // Get all topics
         public IEnumerable<Topic> GetTopics()
         {
-            return _context.Topics.Include(t => t.Users).Include(t => t.Discussions).ToList();
+            return _context.Topics.Include(t => t.User).Include(t => t.Discussions).ToList();
         }
 
         // Get specific topic by ID
         public Topic GetTopicById(int id)
         {
             return _context.Topics
-                .Include(t => t.Users)
+                .Include(t => t.User)
                 .Include(t => t.Discussions)
                 .FirstOrDefault(t => t.Id == id);
         }
@@ -41,7 +41,7 @@ namespace CPositiveAPI.Repositories
         public IEnumerable<Discussion> GetDiscussionsByTopicId(int topicId)
         {
             return _context.Discussions
-                .Include(d => d.Users)
+                .Include(d => d.User)
                 .Include(d => d.Topic)
                 .Where(d => d.TopicId == topicId)
                 .ToList();

@@ -31,6 +31,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddScoped<ICancerRepository, CancerDetailsRepository>();
+builder.Services.AddScoped<ITreatmentRepository, TreatmentRepository>();
+builder.Services.AddScoped<ICPatientRepository, CPatientRepository>();
+builder.Services.AddScoped<IForumRepository, ForumRepository>();
+builder.Services.AddScoped<IOtherDetailsRepository, OtherDetailsRepository>();
+
 // Configure CORS
 builder.Services.AddCors(p => p.AddPolicy("corspolicy", builder =>
 {
@@ -38,12 +44,6 @@ builder.Services.AddCors(p => p.AddPolicy("corspolicy", builder =>
 }));
 
 var app = builder.Build();
-
-builder.Services.AddScoped<ICancerRepository, CancerDetailsRepository>();
-builder.Services.AddScoped<ITreatmentRepository, TreatmentRepository>();
-builder.Services.AddScoped<ICPatientRepository, CPatientRepository>();
-builder.Services.AddScoped<IForumRepository, ForumRepository>();
-builder.Services.AddScoped<IOtherDetailsRepository, OtherDetailsRepository>();
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
